@@ -1,0 +1,45 @@
+# Python
+
+**pycache**/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+
+venv/
+env/
+.venv/
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# Uploads
+
+uploads/
+
+# Model files
+
+*.keras
+*.h5
+*.hdf5
+*.pb
+
+# Node
+
+node_modules/
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# Build
+
+build/
+dist/
+
+# Logs
+
+*.log
