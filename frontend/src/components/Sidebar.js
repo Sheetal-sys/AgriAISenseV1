@@ -41,11 +41,7 @@ function Sidebar({ activePage, setActivePage }) {
         </button>
       </nav>
 
-      <div className="sidebar-footer">
-        <button className={activePage === "settings" ? "nav-item active" : "nav-item"} onClick={() => setActivePage("settings")}>
-          <Settings size={18} /> Settings
-        </button>
-      </div>
+      
     </aside>
   );
 }

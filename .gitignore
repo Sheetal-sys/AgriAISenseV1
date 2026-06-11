@@ -1,45 +1,22 @@
-# Python
-
-**pycache**/
+__pycache__/
 *.pyc
-*.pyo
-*.pyd
-
-# Virtual environments
-
-venv/
-env/
-.venv/
-
-# Jupyter
-
 .ipynb_checkpoints/
-
-# Uploads
-
+node_modules/
+frontend/node_modules/
+backend/uploads/
 uploads/
-
-# Model files
-
+backend/model/
 *.keras
 *.h5
 *.hdf5
 *.pb
-
-# Node
-
-node_modules/
-
-# OS
-
+.env
+venv/
+env/
+.venv/
+.cache/
 .DS_Store
 Thumbs.db
-
-# Build
-
 build/
 dist/
-
-# Logs
-
 *.log

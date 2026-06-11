@@ -1,18 +1,11 @@
 import tensorflow as tf
 import numpy as np
 from pathlib import Path
-
-# ==========================
-# Load Model
-# ==========================
+from PIL import Image
 
 MODEL_PATH = Path(__file__).parent.parent / "model" / "trained_plant_disease_model.keras"
 
 model = tf.keras.models.load_model(MODEL_PATH)
-
-# ==========================
-# Class Names
-# ==========================
 
 class_names = [
     'Apple___Apple_scab',
@@ -58,31 +51,28 @@ class_names = [
 
 def clean_prediction(label):
     parts = label.split("___")
-
-    crop = parts[0].replace("_", " ")
-
-    disease = parts[1].replace("_", " ") if len(parts) > 1 else "Unknown"
-
+    crop = parts[0].replace("_", " ").strip()
+    disease = parts[1].replace("_", " ").strip() if len(parts) > 1 else "Unknown"
     return crop, disease
 
 
-def predict_disease(image_path):
+def preprocess_image(image_path):
+    img = Image.open(image_path).convert("RGB")
+    img = img.resize((128, 128))
 
-    img = tf.keras.preprocessing.image.load_img(
-        image_path,
-        target_size=(128, 128)
-    )
-
-    img_array = tf.keras.preprocessing.image.img_to_array(img)
-
+    img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
 
-    prediction = model.predict(img_array, verbose=0)
+    return img_array
 
-    result_index = np.argmax(prediction)
+
+def predict_disease(image_path):
+    img_array = preprocess_image(image_path)
+
+    prediction = model.predict(img_array, verbose=0)
+    result_index = int(np.argmax(prediction))
 
     label = class_names[result_index]
-
     confidence = float(np.max(prediction) * 100)
 
     crop, disease = clean_prediction(label)
