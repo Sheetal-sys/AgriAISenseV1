@@ -1,13 +1,17 @@
+from database import save_prediction, get_prediction_history
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import StreamingResponse
 from agents.disease_detection_agent import predict_disease
 from agents.recommendation_agent import get_recommendation
+from report_generator import generate_prediction_report
 import shutil
 from pathlib import Path
 import uuid
 from PIL import Image
 import cv2
 import logging
+import re
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -80,9 +84,38 @@ def get_confidence_level(confidence: float):
         return "Low"
 
 
+def safe_filename(value: str):
+    value = value or "report"
+    value = re.sub(r"[^a-zA-Z0-9_-]", "_", value)
+    return value[:80]
+
+
 @app.get("/")
 def home():
     return {"message": "AgriAI Disease Detection API is running"}
+
+
+@app.get("/history")
+def get_history(page: int = 1, limit: int = 10):
+    return get_prediction_history(page=page, limit=limit)
+
+
+@app.post("/generate-report")
+def generate_report(data: dict):
+    pdf_buffer = generate_prediction_report(data)
+
+    crop = safe_filename(data.get("crop", "crop"))
+    disease = safe_filename(data.get("disease", "disease"))
+
+    filename = f"AgriAI_Report_{crop}_{disease}.pdf"
+
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"'
+        }
+    )
 
 
 @app.post("/predict")
@@ -143,5 +176,7 @@ async def predict(file: UploadFile = File(...)):
         )
 
     logger.info(f"Prediction completed: {final_result}")
+
+    save_prediction(file_path, final_result)
 
     return final_result

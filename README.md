@@ -2,23 +2,25 @@
 
 ### AI-Powered Crop Disease Detection & Agricultural Advisory Platform
 
-AgriAI Sense V1 is an intelligent agriculture platform that leverages Artificial Intelligence, Computer Vision, and Deep Learning to detect crop diseases from leaf images and provide actionable treatment recommendations to farmers.
+AgriAI Sense V1 is an intelligent agriculture platform that leverages Artificial Intelligence, Computer Vision, Deep Learning, and Agricultural Knowledge Systems to detect crop diseases from leaf images and provide actionable recommendations to farmers.
 
-The platform combines disease detection, image quality assessment, confidence evaluation, and agricultural advisory into a single farmer-friendly application.
+The platform combines disease detection, image quality analysis, confidence evaluation, prediction history tracking, MongoDB cloud storage, PDF report generation, and agricultural advisory into a single farmer-friendly application.
 
 ---
 
 # 🚀 Project Overview
 
-Crop diseases are one of the major causes of agricultural yield loss worldwide. Farmers often struggle to identify diseases accurately during the early stages of infection.
+Crop diseases are one of the leading causes of agricultural yield loss worldwide. Farmers often struggle to identify diseases accurately during the early stages of infection.
 
-AgriAI Sense V1 helps solve this problem by allowing farmers to upload crop leaf images and instantly receive:
+AgriAI Sense V1 helps solve this problem by allowing users to upload crop leaf images and instantly receive:
 
 ✅ Disease Identification
 
 ✅ Disease Severity Assessment
 
 ✅ Confidence Evaluation
+
+✅ Reliability Classification
 
 ✅ Disease Causes
 
@@ -30,29 +32,44 @@ AgriAI Sense V1 helps solve this problem by allowing farmers to upload crop leaf
 
 ✅ Image Quality Analysis
 
-The platform is designed for both non-technical farmers and technical users, providing simplified insights alongside advanced diagnostics.
+✅ Prediction History Tracking
+
+✅ MongoDB Cloud Storage
+
+✅ PDF Report Generation
 
 ---
 
-# 📸 Application Screenshots
+# 🎥 Project Demo
 
-## disease detection 
+Watch the complete AgriAI Sense V1 walkthrough:
 
-![disease detection Page](screenshots/disease-detection-page.png)
+```text
+video/
+└── AgriAI.mp4
+```
 
-## low confidence disease Detection 
+### Demo Includes
 
-![low confidence](screenshots/low-confidence-prediction.png)
+✅ Disease Detection
 
-## High confidence Disease detection
+✅ Healthy Crop Detection
 
-![high confidence ](screenshots/high-confidence-prediction.png)
+✅ High Confidence Prediction
 
-## healthy crop detection
+✅ Low Confidence Prediction
 
-![healthy detection](screenshots/healthy-leaf-detection.png)
+✅ Image Quality Validation
 
-> Create a `screenshots` folder inside the repository and place your application screenshots there.
+✅ MongoDB Atlas Storage
+
+✅ Prediction History
+
+✅ PDF Report Generation
+
+✅ Download Report from Result Page
+
+✅ Download Report from History Page
 
 ---
 
@@ -60,28 +77,29 @@ The platform is designed for both non-technical farmers and technical users, pro
 
 ## 🌱 AI Disease Detection
 
-* CNN-based plant disease classification
-* Multi-class disease detection
+* CNN-based disease classification
+* Multi-class plant disease detection
 * Healthy vs Diseased leaf identification
 * Real-time prediction
-* Confidence-based prediction evaluation
+* Confidence-based disease evaluation
+* Reliability categorization
 
 ---
 
 ## 📷 Smart Image Quality Analysis
 
-Before performing disease prediction, the system evaluates image quality.
+Before disease prediction, the system evaluates image quality.
 
 ### Quality Checks
 
 * Image readability validation
-* Blur detection
+* Blur detection using OpenCV
 * Brightness analysis
 * Focus assessment
 
 ### Farmer-Friendly Results
 
-* Image Focus → Sharp / Blurry
+* Focus → Sharp / Blurry
 * Lighting → Good / Too Dark / Too Bright
 
 ### Advanced Diagnostics
@@ -90,25 +108,27 @@ Before performing disease prediction, the system evaluates image quality.
 * Brightness Score
 * Quality Classification
 
+This prevents unreliable predictions caused by poor-quality images.
+
 ---
 
-## 📊 Prediction Confidence Analysis
+## 📊 Confidence & Reliability Analysis
 
-To improve reliability and transparency, predictions are categorized into reliability levels.
+Predictions are grouped into reliability levels.
 
 | Confidence Score | Reliability |
 | ---------------- | ----------- |
 | 90%+             | High        |
-| 75% - 89%        | Medium      |
+| 75% – 89%        | Medium      |
 | Below 75%        | Low         |
 
-Low-confidence predictions automatically trigger recommendations for improved image capture.
+Low-confidence predictions automatically generate advisory messages encouraging users to upload clearer images.
 
 ---
 
 ## 💊 Agricultural Advisory Engine
 
-For each detected disease, the platform provides:
+For every detected disease, the platform provides:
 
 * Cause
 * Symptoms
@@ -116,7 +136,54 @@ For each detected disease, the platform provides:
 * Prevention
 * Severity
 
-This transforms the system from a simple classifier into a practical decision-support tool.
+This transforms the application from a simple classifier into a practical decision-support system.
+
+---
+
+## 🗄 Prediction History Management
+
+All disease predictions are automatically stored in MongoDB Atlas.
+
+Stored Information:
+
+* Crop Name
+* Disease
+* Confidence Score
+* Reliability Level
+* Severity
+* Prediction Status
+* Treatment Recommendation
+* Prevention Guidance
+* Prediction Timestamp
+
+Benefits:
+
+* Historical disease tracking
+* Scan history management
+* Farmer record keeping
+* Future analytics support
+
+---
+
+## 📄 PDF Report Generation
+
+Users can generate downloadable crop health reports.
+
+Each report includes:
+
+* Crop Name
+* Disease Name
+* Confidence Score
+* Reliability Level
+* Severity
+* Cause
+* Symptoms
+* Treatment
+* Prevention
+* Prediction Status
+* Report Generation Timestamp
+
+Reports are generated dynamically using ReportLab.
 
 ---
 
@@ -185,106 +252,11 @@ The current version supports diseases across multiple crops including:
 * Powdery Mildew
 * Healthy Leaves
 
-Total Supported Classes: **38**
-
----
-
-# 🚧 Engineering Challenges Solved
-
-## Challenge 1: Poor Quality Farmer Images
-
-### Problem
-
-Farmers often upload:
-
-* Blurry images
-* Dark images
-* Overexposed images
-* Images containing excessive background noise
-
-### Solution
-
-Implemented image quality validation using OpenCV:
-
-* Blur Detection (Laplacian Variance)
-* Brightness Analysis (HSV Channel)
-* Image Integrity Verification
-
-This prevents unreliable predictions from poor-quality images.
-
----
-
-## Challenge 2: Confidence Scores Are Difficult To Interpret
-
-### Problem
-
-Raw confidence values such as:
-
-* 62.4%
-* 88.1%
-* 99.8%
-
-provide little meaning to non-technical users.
-
-### Solution
-
-Added farmer-friendly reliability indicators:
-
-* High Reliability
-* Medium Reliability
-* Low Reliability
-
----
-
-## Challenge 3: Technical Metrics Are Not Farmer Friendly
-
-### Problem
-
-Metrics like:
-
-* Blur Score = 5708
-* Brightness Score = 166
-
-are difficult for farmers to understand.
-
-### Solution
-
-Created dual-view diagnostics:
-
-### Farmer View
-
-* Focus: Sharp / Blurry
-* Lighting: Good / Too Dark / Too Bright
-
-### Advanced View
-
-* Actual blur score
-* Actual brightness score
-* Technical quality interpretation
-
----
-
-## Challenge 4: AI Models Cannot Explain Diseases
-
-### Problem
-
-CNN models only predict disease classes.
-
-### Solution
-
-Implemented a Recommendation Agent connected to a disease knowledge base that provides:
-
-* Cause
-* Symptoms
-* Treatment
-* Prevention
-* Severity
+**Total Supported Classes: 38**
 
 ---
 
 # 🤖 Agent-Based Architecture
-
-AgriAI follows a modular AI agent architecture.
 
 ## Disease Detection Agent
 
@@ -311,7 +283,7 @@ AgriAI follows a modular AI agent architecture.
 
 * Query disease knowledge base
 * Retrieve disease information
-* Generate farmer recommendations
+* Generate agricultural recommendations
 
 ### Output
 
@@ -326,25 +298,35 @@ AgriAI follows a modular AI agent architecture.
 # 🏗 System Architecture
 
 ```text
-Frontend (React.js)
-        │
-        ▼
- FastAPI Backend
-        │
-        ▼
+React Frontend
+       │
+       ▼
+FastAPI Backend
+       │
+       ▼
+Validation Layer
+(File + Quality Checks)
+       │
+       ▼
 Disease Detection Agent
-        │
-        ▼
- CNN Model (TensorFlow)
-        │
-        ▼
+       │
+       ▼
+TensorFlow CNN Model
+       │
+       ▼
 Recommendation Agent
-        │
-        ▼
+       │
+       ▼
 Disease Knowledge Base
-        │
-        ▼
- Farmer Advisory Response
+       │
+       ▼
+MongoDB Atlas
+       │
+       ▼
+PDF Report Generator
+       │
+       ▼
+Prediction History Dashboard
 ```
 
 # 🛠 Technology Stack
@@ -372,6 +354,15 @@ Disease Knowledge Base
 * OpenCV
 * Pillow
 
+## Database
+
+* MongoDB Atlas
+* PyMongo
+
+## Reporting
+
+* ReportLab
+
 ## Knowledge Layer
 
 * JSON Knowledge Base
@@ -381,30 +372,23 @@ Disease Knowledge Base
 # 📂 Project Structure
 
 ```text
-AgriAI/
+AgriAISenseV1/
 
 ├── backend/
 │   ├── agents/
-│   │   ├── disease_detection_agent.py
-│   │   └── recommendation_agent.py
-│   │
 │   ├── knowledge/
-│   │   └── disease_knowledge.json
-│   │
 │   ├── model/
-│   │   └── trained_plant_disease_model.keras
-│   │
 │   ├── uploads/
-│   │
-│   └── app.py
+│   ├── app.py
+│   ├── database.py
+│   └── report_generator.py
 │
 ├── frontend/
-│   ├── components/
-│   ├── pages/
-│   ├── App.js
-│   └── App.css
+│   ├── src/
+│   └── public/
 │
-├── screenshots/
+├── video/
+│   └── AgriAI.mp4
 │
 ├── requirements.txt
 │
@@ -415,27 +399,13 @@ AgriAI/
 
 ## Backend Setup
 
-### Create Virtual Environment
-
 ```bash
-python -m venv venv
-```
+conda activate plantai
 
-### Activate Environment
-
-```bash
-venv\Scripts\activate
-```
-
-### Install Dependencies
-
-```bash
 pip install -r requirements.txt
-```
 
-### Run FastAPI Backend
+cd backend
 
-```bash
 uvicorn app:app --reload
 ```
 
@@ -449,15 +419,11 @@ http://127.0.0.1:8000
 
 ## Frontend Setup
 
-### Install Dependencies
-
 ```bash
+cd frontend
+
 npm install
-```
 
-### Start React Application
-
-```bash
 npm start
 ```
 
@@ -473,12 +439,14 @@ http://localhost:3000
 
 1. Upload crop leaf image
 2. System validates image quality
-3. Image preprocessing performed
-4. CNN model predicts disease
-5. Confidence score calculated
+3. CNN model predicts disease
+4. Confidence score calculated
+5. Reliability level assigned
 6. Knowledge base queried
 7. Recommendations generated
-8. Results displayed to farmer
+8. Prediction stored in MongoDB Atlas
+9. PDF report generated on demand
+10. Prediction history updated
 
 ---
 
@@ -486,25 +454,26 @@ http://localhost:3000
 
 ## Phase 2
 
-* AI Farmer Chatbot
-* Weather Risk Prediction
-* Crop Recommendation Engine
-* Scan History Tracking
+* Dashboard Analytics
+* Disease Trend Analysis
+* Crop Health Statistics
+* Farmer Activity Insights
 
 ## Phase 3
 
+* AI Farmer Chatbot
+* Weather Risk Prediction
+* Crop Recommendation Engine
 * Multi-language Support
-* Voice-based Farmer Assistant
-* Mobile Application
-* PDF Report Generation
 
 ## Phase 4
 
-* Multi-Agent Agricultural Intelligence System
+* Multi-Agent Agricultural Intelligence Platform
 * Yield Forecasting
 * Market Price Prediction
 * Precision Farming Analytics
 * IoT Sensor Integration
+* Satellite Data Integration
 
 ---
 
@@ -520,11 +489,15 @@ AgriAI helps farmers:
 
 ✅ Monitor crop health more effectively
 
+✅ Maintain disease history records
+
+✅ Generate crop health reports
+
 ✅ Access AI-powered agricultural guidance
 
 ✅ Improve farming productivity
 
-The platform demonstrates how Artificial Intelligence can be applied to solve practical agricultural challenges and support modern precision farming initiatives.
+The platform demonstrates how Artificial Intelligence, Computer Vision, Deep Learning, and Agricultural Knowledge Systems can be combined to solve real-world farming challenges.
 
 ---
 
@@ -532,6 +505,6 @@ The platform demonstrates how Artificial Intelligence can be applied to solve pr
 
 **Sheetal Sharma**
 
-AI Engineer | Data Science Enthusiast | Agriculture Intelligence Systems
+AI Engineer | Data Science Enthusiast | Agricultural Intelligence Systems
 
-AgriAI Sense V1
+**AgriAI Sense V1**

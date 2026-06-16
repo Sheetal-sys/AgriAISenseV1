@@ -1,5 +1,14 @@
 import React from "react";
-import { Leaf, Home, Activity, Sprout, BarChart3, Bot, Settings } from "lucide-react";
+import {
+  Leaf,
+  Home,
+  Activity,
+  Sprout,
+  BarChart3,
+  Bot,
+  Settings,
+  History as HistoryIcon
+} from "lucide-react";
 
 function Sidebar({ activePage, setActivePage }) {
   return (
@@ -23,6 +32,12 @@ function Sidebar({ activePage, setActivePage }) {
         <button className={activePage === "disease" ? "nav-item active" : "nav-item"} onClick={() => setActivePage("disease")}>
           <Leaf size={18} /> Disease Detection
         </button>
+
+        <button className={activePage === "history" ? "nav-item active" : "nav-item"}
+        onClick={() => setActivePage("history")}
+>
+       <HistoryIcon size={18} /> Prediction History
+       </button>
 
         <button className="nav-item disabled">
           <Sprout size={18} /> Crop Recommendation

@@ -9,7 +9,8 @@ import {
   Leaf,
   AlertTriangle,
   CheckCircle,
-  Info
+  Info,
+  Download
 } from "lucide-react";
 
 function DiseaseDetection() {
@@ -17,6 +18,7 @@ function DiseaseDetection() {
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleFileChange = (e) => {
@@ -60,6 +62,48 @@ function DiseaseDetection() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const downloadReport = async () => {
+    if (!result) return;
+
+    try {
+      setReportLoading(true);
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/generate-report",
+        result,
+        {
+          responseType: "blob"
+        }
+      );
+
+      const pdfBlob = new Blob([response.data], {
+        type: "application/pdf"
+      });
+
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+
+      const crop = result.crop || "crop";
+      const disease = result.disease || "disease";
+
+      link.href = url;
+      link.download = `AgriAI_Report_${crop}_${disease}.pdf`
+        .replaceAll(" ", "_")
+        .replaceAll("/", "_");
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Report download failed", error);
+      setErrorMessage("Unable to download report. Please try again.");
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -263,6 +307,15 @@ function DiseaseDetection() {
               </div>
 
               {renderAdvancedDetails()}
+
+              <button
+                className="report-btn"
+                onClick={downloadReport}
+                disabled={reportLoading}
+              >
+                <Download size={18} />
+                {reportLoading ? "Generating Report..." : "Download PDF Report"}
+              </button>
 
               <div className="advisory-list">
                 <div className="advisory-card">
