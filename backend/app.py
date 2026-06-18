@@ -115,6 +115,7 @@ def get_analytics():
 def get_analytics_charts():
     return get_dashboard_charts()
 
+
 @app.post("/feedback")
 def submit_feedback(data: dict):
     prediction_id = data.get("prediction_id")
@@ -126,19 +127,19 @@ def submit_feedback(data: dict):
             detail="prediction_id and valid feedback are required."
         )
 
-    updated = update_prediction_feedback(prediction_id, feedback)
+    saved_feedback = update_prediction_feedback(prediction_id, feedback)
 
-    if not updated:
+    if not saved_feedback:
         raise HTTPException(
             status_code=404,
-            detail="Prediction not found or feedback not updated."
+            detail="Prediction not found or feedback not saved."
         )
 
     return {
         "message": "Feedback saved successfully.",
-        "prediction_id": prediction_id,
-        "feedback": feedback
+        **saved_feedback
     }
+
 
 @app.post("/generate-report")
 def generate_report(data: dict):

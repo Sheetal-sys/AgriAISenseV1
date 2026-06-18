@@ -189,6 +189,22 @@ function Home() {
               />
             </LineChart>
           </ResponsiveContainer>
+
+           <div className="chart-card full-chart">
+  <h3>Feedback Distribution</h3>
+  <p>Correct vs wrong feedback submitted by users.</p>
+
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart data={charts?.feedback_distribution || []}>
+      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+      <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 12 }} />
+      <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} />
+      <Tooltip />
+      <Bar dataKey="count" fill="#5eead4" radius={[8, 8, 0, 0]} />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+
         </div>
       </div>
     </div>

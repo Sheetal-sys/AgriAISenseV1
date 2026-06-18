@@ -1,9 +1,35 @@
+import json
 import tensorflow as tf
 import numpy as np
 from pathlib import Path
 from PIL import Image
 
-MODEL_PATH = Path(__file__).parent.parent / "model" / "trained_plant_disease_model.keras"
+BASE_DIR = Path(__file__).parent.parent
+MODEL_DIR = BASE_DIR / "model"
+CONFIG_PATH = MODEL_DIR / "model_config.json"
+
+
+def load_model_config():
+    if not CONFIG_PATH.exists():
+        raise FileNotFoundError(
+            f"Model config not found at {CONFIG_PATH}. "
+            "Please create backend/model/model_config.json"
+        )
+
+    with open(CONFIG_PATH, "r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+model_config = load_model_config()
+
+MODEL_PATH = MODEL_DIR / model_config["active_model"]
+INPUT_SIZE = tuple(model_config.get("input_size", [128, 128]))
+
+if not MODEL_PATH.exists():
+    raise FileNotFoundError(
+        f"Active model file not found at {MODEL_PATH}. "
+        "Check active_model value in model_config.json"
+    )
 
 model = tf.keras.models.load_model(MODEL_PATH)
 
@@ -58,7 +84,7 @@ def clean_prediction(label):
 
 def preprocess_image(image_path):
     img = Image.open(image_path).convert("RGB")
-    img = img.resize((128, 128))
+    img = img.resize(INPUT_SIZE)
 
     img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
@@ -81,5 +107,8 @@ def predict_disease(image_path):
         "crop": crop,
         "disease": disease,
         "class_name": label,
-        "confidence": round(confidence, 2)
+        "confidence": round(confidence, 2),
+        "model_version": model_config.get("version", "v1"),
+        "model_type": model_config.get("model_type", "Unknown"),
+        "model_accuracy": model_config.get("validation_accuracy", "N/A")
     }

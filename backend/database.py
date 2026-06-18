@@ -12,7 +12,9 @@ MONGO_COLLECTION_NAME = os.getenv("MONGO_COLLECTION_NAME", "predictions")
 
 client = MongoClient(MONGO_URI)
 db = client[MONGO_DB_NAME]
+
 predictions_collection = db[MONGO_COLLECTION_NAME]
+feedback_collection = db["feedback"]
 
 
 def save_prediction(image_path, result):
@@ -32,6 +34,9 @@ def save_prediction(image_path, result):
         "symptoms": result.get("symptoms"),
         "treatment": result.get("treatment"),
         "prevention": result.get("prevention"),
+        "model_version": result.get("model_version"),
+        "model_type": result.get("model_type"),
+        "model_accuracy": result.get("model_accuracy"),
         "feedback": None,
         "feedback_created_at": None,
         "created_at": datetime.now(timezone.utc)
@@ -43,19 +48,77 @@ def save_prediction(image_path, result):
 
 def update_prediction_feedback(prediction_id, feedback):
     if feedback not in ["correct", "wrong"]:
-        return False
+        return None
 
-    result = predictions_collection.update_one(
+    prediction = predictions_collection.find_one(
+        {"_id": ObjectId(prediction_id)}
+    )
+
+    if not prediction:
+        return None
+
+    feedback_time = datetime.now(timezone.utc)
+
+    predictions_collection.update_one(
         {"_id": ObjectId(prediction_id)},
         {
             "$set": {
                 "feedback": feedback,
-                "feedback_created_at": datetime.now(timezone.utc)
+                "feedback_created_at": feedback_time
             }
         }
     )
 
-    return result.modified_count == 1
+    feedback_document = {
+        "prediction_id": prediction_id,
+        "crop": prediction.get("crop"),
+        "predicted_disease": prediction.get("disease"),
+        "class_name": prediction.get("class_name"),
+        "confidence": prediction.get("confidence"),
+        "confidence_level": prediction.get("confidence_level"),
+        "severity": prediction.get("severity"),
+        "status": prediction.get("status"),
+        "model_version": prediction.get("model_version"),
+        "model_type": prediction.get("model_type"),
+        "feedback": feedback,
+        "created_at": feedback_time
+    }
+
+    feedback_collection.update_one(
+        {"prediction_id": prediction_id},
+        {"$set": feedback_document},
+        upsert=True
+    )
+
+    return {
+        "prediction_id": prediction_id,
+        "feedback": feedback,
+        "feedback_created_at": feedback_time.isoformat()
+    }
+
+
+    feedback_document = {
+        "prediction_id": prediction_id,
+        "crop": prediction.get("crop"),
+        "predicted_disease": prediction.get("disease"),
+        "class_name": prediction.get("class_name"),
+        "confidence": prediction.get("confidence"),
+        "confidence_level": prediction.get("confidence_level"),
+        "severity": prediction.get("severity"),
+        "status": prediction.get("status"),
+        "model_version": prediction.get("model_version"),
+        "model_type": prediction.get("model_type"),
+        "feedback": feedback,
+        "created_at": feedback_time
+    }
+
+    feedback_collection.insert_one(feedback_document)
+
+    return {
+        "prediction_id": prediction_id,
+        "feedback": feedback,
+        "feedback_created_at": feedback_time.isoformat()
+    }
 
 
 def get_prediction_history(page=1, limit=10):
@@ -104,13 +167,22 @@ def get_dashboard_analytics():
 
     avg_confidence_result = list(
         predictions_collection.aggregate([
-            {"$group": {"_id": None, "avg_confidence": {"$avg": "$confidence"}}}
+            {
+                "$group": {
+                    "_id": None,
+                    "avg_confidence": {"$avg": "$confidence"}
+                }
+            }
         ])
     )
 
     avg_confidence = 0
+
     if avg_confidence_result:
-        avg_confidence = round(avg_confidence_result[0].get("avg_confidence", 0), 2)
+        avg_confidence = round(
+            avg_confidence_result[0].get("avg_confidence", 0),
+            2
+        )
 
     top_disease_result = list(
         predictions_collection.aggregate([
@@ -121,7 +193,12 @@ def get_dashboard_analytics():
                     }
                 }
             },
-            {"$group": {"_id": "$disease", "count": {"$sum": 1}}},
+            {
+                "$group": {
+                    "_id": "$disease",
+                    "count": {"$sum": 1}
+                }
+            },
             {"$sort": {"count": -1}},
             {"$limit": 1}
         ])
@@ -129,14 +206,24 @@ def get_dashboard_analytics():
 
     top_crop_result = list(
         predictions_collection.aggregate([
-            {"$group": {"_id": "$crop", "count": {"$sum": 1}}},
+            {
+                "$group": {
+                    "_id": "$crop",
+                    "count": {"$sum": 1}
+                }
+            },
             {"$sort": {"count": -1}},
             {"$limit": 1}
         ])
     )
 
-    feedback_correct = predictions_collection.count_documents({"feedback": "correct"})
-    feedback_wrong = predictions_collection.count_documents({"feedback": "wrong"})
+    feedback_correct = predictions_collection.count_documents({
+    "feedback": "correct"
+    })
+
+    feedback_wrong = predictions_collection.count_documents({
+    "feedback": "wrong"
+     })
 
     return {
         "total_scans": total_scans,
@@ -155,7 +242,12 @@ def get_dashboard_analytics():
 def get_dashboard_charts():
     disease_distribution = list(
         predictions_collection.aggregate([
-            {"$group": {"_id": "$disease", "count": {"$sum": 1}}},
+            {
+                "$group": {
+                    "_id": "$disease",
+                    "count": {"$sum": 1}
+                }
+            },
             {"$sort": {"count": -1}},
             {"$limit": 8}
         ])
@@ -163,7 +255,12 @@ def get_dashboard_charts():
 
     crop_distribution = list(
         predictions_collection.aggregate([
-            {"$group": {"_id": "$crop", "count": {"$sum": 1}}},
+            {
+                "$group": {
+                    "_id": "$crop",
+                    "count": {"$sum": 1}
+                }
+            },
             {"$sort": {"count": -1}},
             {"$limit": 8}
         ])
@@ -187,14 +284,33 @@ def get_dashboard_charts():
             "disease": record.get("disease", "N/A")
         })
 
+    feedback_distribution = [
+    {
+        "name": "Correct",
+        "count": predictions_collection.count_documents({"feedback": "correct"})
+    },
+    {
+        "name": "Wrong",
+        "count": predictions_collection.count_documents({"feedback": "wrong"})
+    }
+]
+    
+
     return {
         "disease_distribution": [
-            {"name": item.get("_id") or "Unknown", "count": item.get("count", 0)}
+            {
+                "name": item.get("_id") or "Unknown",
+                "count": item.get("count", 0)
+            }
             for item in disease_distribution
         ],
         "crop_distribution": [
-            {"name": item.get("_id") or "Unknown", "count": item.get("count", 0)}
+            {
+                "name": item.get("_id") or "Unknown",
+                "count": item.get("count", 0)
+            }
             for item in crop_distribution
         ],
-        "confidence_trend": confidence_trend
+        "confidence_trend": confidence_trend,
+        "feedback_distribution": feedback_distribution
     }
