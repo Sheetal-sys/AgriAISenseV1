@@ -1,4 +1,10 @@
-from database import save_prediction, get_prediction_history
+from database import (
+    save_prediction,
+    get_prediction_history,
+    get_dashboard_analytics,
+    get_dashboard_charts,
+    update_prediction_feedback
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse
@@ -100,6 +106,40 @@ def get_history(page: int = 1, limit: int = 10):
     return get_prediction_history(page=page, limit=limit)
 
 
+@app.get("/analytics")
+def get_analytics():
+    return get_dashboard_analytics()
+
+
+@app.get("/analytics/charts")
+def get_analytics_charts():
+    return get_dashboard_charts()
+
+@app.post("/feedback")
+def submit_feedback(data: dict):
+    prediction_id = data.get("prediction_id")
+    feedback = data.get("feedback")
+
+    if not prediction_id or feedback not in ["correct", "wrong"]:
+        raise HTTPException(
+            status_code=400,
+            detail="prediction_id and valid feedback are required."
+        )
+
+    updated = update_prediction_feedback(prediction_id, feedback)
+
+    if not updated:
+        raise HTTPException(
+            status_code=404,
+            detail="Prediction not found or feedback not updated."
+        )
+
+    return {
+        "message": "Feedback saved successfully.",
+        "prediction_id": prediction_id,
+        "feedback": feedback
+    }
+
 @app.post("/generate-report")
 def generate_report(data: dict):
     pdf_buffer = generate_prediction_report(data)
@@ -177,6 +217,9 @@ async def predict(file: UploadFile = File(...)):
 
     logger.info(f"Prediction completed: {final_result}")
 
-    save_prediction(file_path, final_result)
+    prediction_id = save_prediction(file_path, final_result)
+
+    final_result["_id"] = prediction_id
+    final_result["feedback"] = None
 
     return final_result

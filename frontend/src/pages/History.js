@@ -17,6 +17,7 @@ function History() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [reportLoadingId, setReportLoadingId] = useState(null);
+  const [feedbackLoadingId, setFeedbackLoadingId] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [totalRecords, setTotalRecords] = useState(0);
@@ -83,6 +84,32 @@ function History() {
       hour12: true,
       timeZone: "Asia/Kolkata"
     });
+  };
+
+  const submitFeedback = async (item, feedbackValue) => {
+    if (!item?._id) return;
+
+    try {
+      setFeedbackLoadingId(item._id);
+
+      await axios.post("http://127.0.0.1:8000/feedback", {
+        prediction_id: item._id,
+        feedback: feedbackValue
+      });
+
+      setHistory((prev) =>
+        prev.map((record) =>
+          record._id === item._id
+            ? { ...record, feedback: feedbackValue }
+            : record
+        )
+      );
+    } catch (error) {
+      console.error("Feedback failed", error);
+      alert("Unable to submit feedback. Please try again.");
+    } finally {
+      setFeedbackLoadingId(null);
+    }
   };
 
   const downloadReport = async (item) => {
@@ -262,6 +289,44 @@ function History() {
                     <span>Time</span>
                     <strong>{formatTime(item.created_at)}</strong>
                   </div>
+                </div>
+
+                <div className="feedback-box compact-feedback">
+                  <p>Was this prediction correct?</p>
+
+                  <div className="feedback-actions">
+                    <button
+                      className={
+                        item.feedback === "correct"
+                          ? "feedback-btn active"
+                          : "feedback-btn"
+                      }
+                      onClick={() => submitFeedback(item, "correct")}
+                      disabled={Boolean(item.feedback) || feedbackLoadingId === item._id}
+                    >
+                      👍 Correct
+                    </button>
+
+                    <button
+                      className={
+                        item.feedback === "wrong"
+                          ? "feedback-btn active wrong"
+                          : "feedback-btn wrong"
+                      }
+                      onClick={() => submitFeedback(item, "wrong")}
+                      disabled={Boolean(item.feedback) || feedbackLoadingId === item._id}
+                    >
+                      👎 Wrong
+                    </button>
+                  </div>
+
+                  {feedbackLoadingId === item._id && (
+                    <small>Saving feedback...</small>
+                  )}
+
+                  {item.feedback && (
+                    <small>Feedback saved: {item.feedback}</small>
+                  )}
                 </div>
 
                 <button

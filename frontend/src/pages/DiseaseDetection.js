@@ -115,6 +115,30 @@ function DiseaseDetection() {
     return <Info size={18} />;
   };
 
+  const submitFeedback = async (feedbackValue) => {
+  if (!result?._id) {
+    setErrorMessage("Feedback can be submitted only after saved prediction.");
+    return;
+  }
+
+  try {
+    await axios.post("http://127.0.0.1:8000/feedback", {
+      prediction_id: result._id,
+      feedback: feedbackValue
+    });
+
+    setResult((prev) => ({
+      ...prev,
+      feedback: feedbackValue
+    }));
+  } catch (error) {
+    console.error("Feedback failed", error);
+    setErrorMessage("Unable to submit feedback. Please try again.");
+  }
+};
+
+
+
   const getLightingLabel = (score) => {
     if (score === undefined || score === null) return "Unknown";
     if (score < 60) return "Too Dark";
@@ -307,6 +331,32 @@ function DiseaseDetection() {
               </div>
 
               {renderAdvancedDetails()}
+
+              <div className="feedback-box">
+  <p>Was this prediction correct?</p>
+
+  <div className="feedback-actions">
+    <button
+      className={result.feedback === "correct" ? "feedback-btn active" : "feedback-btn"}
+      onClick={() => submitFeedback("correct")}
+      disabled={result.feedback}
+    >
+      👍 Correct
+    </button>
+
+    <button
+      className={result.feedback === "wrong" ? "feedback-btn active wrong" : "feedback-btn wrong"}
+      onClick={() => submitFeedback("wrong")}
+      disabled={result.feedback}
+    >
+      👎 Wrong
+    </button>
+  </div>
+
+  {result.feedback && (
+    <small>Feedback saved: {result.feedback}</small>
+  )}
+</div>
 
               <button
                 className="report-btn"

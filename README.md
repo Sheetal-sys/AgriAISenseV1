@@ -1,18 +1,18 @@
 # 🌿 AgriAI Sense V1
 
-### AI-Powered Crop Disease Detection & Agricultural Advisory Platform
+### AI-Powered Crop Disease Detection, Analytics & Agricultural Advisory Platform
 
-AgriAI Sense V1 is an intelligent agriculture platform that leverages Artificial Intelligence, Computer Vision, Deep Learning, and Agricultural Knowledge Systems to detect crop diseases from leaf images and provide actionable recommendations to farmers.
+AgriAI Sense V1 is an intelligent agriculture platform that combines Artificial Intelligence, Deep Learning, Computer Vision, Agricultural Knowledge Systems, Cloud Databases, and Human Feedback Learning to help farmers detect crop diseases and make informed decisions.
 
-The platform combines disease detection, image quality analysis, confidence evaluation, prediction history tracking, MongoDB cloud storage, PDF report generation, and agricultural advisory into a single farmer-friendly application.
+The system provides disease detection, image quality analysis, agricultural recommendations, prediction history management, dashboard analytics, PDF report generation, and a continuous feedback loop for future model improvement.
 
 ---
 
 # 🚀 Project Overview
 
-Crop diseases are one of the leading causes of agricultural yield loss worldwide. Farmers often struggle to identify diseases accurately during the early stages of infection.
+Crop diseases significantly impact agricultural productivity and farmer income.
 
-AgriAI Sense V1 helps solve this problem by allowing users to upload crop leaf images and instantly receive:
+AgriAI Sense V1 helps solve this challenge by allowing farmers to upload crop leaf images and instantly receive:
 
 ✅ Disease Identification
 
@@ -22,54 +22,48 @@ AgriAI Sense V1 helps solve this problem by allowing users to upload crop leaf i
 
 ✅ Reliability Classification
 
-✅ Disease Causes
+✅ Cause Analysis
 
-✅ Symptoms
+✅ Symptom Identification
 
 ✅ Treatment Recommendations
 
 ✅ Prevention Guidance
 
-✅ Image Quality Analysis
+✅ Image Quality Assessment
 
 ✅ Prediction History Tracking
 
-✅ MongoDB Cloud Storage
+✅ MongoDB Atlas Cloud Storage
+
+✅ Dashboard Analytics
 
 ✅ PDF Report Generation
+
+✅ Human Feedback Collection
 
 ---
 
 # 🎥 Project Demo
-
-Watch the complete AgriAI Sense V1 walkthrough:
 
 ```text
 video/
 └── AgriAI.mp4
 ```
 
-### Demo Includes
+Demo showcases:
 
-✅ Disease Detection
-
-✅ Healthy Crop Detection
-
-✅ High Confidence Prediction
-
-✅ Low Confidence Prediction
-
-✅ Image Quality Validation
-
-✅ MongoDB Atlas Storage
-
-✅ Prediction History
-
-✅ PDF Report Generation
-
-✅ Download Report from Result Page
-
-✅ Download Report from History Page
+* Disease Detection
+* Healthy Leaf Detection
+* High Confidence Predictions
+* Low Confidence Warnings
+* Blur Detection
+* Image Quality Validation
+* MongoDB Atlas Integration
+* Prediction History
+* Analytics Dashboard
+* PDF Report Generation
+* Feedback Collection
 
 ---
 
@@ -81,54 +75,51 @@ video/
 * Multi-class plant disease detection
 * Healthy vs Diseased leaf identification
 * Real-time prediction
-* Confidence-based disease evaluation
+* Confidence-based evaluation
 * Reliability categorization
 
 ---
 
 ## 📷 Smart Image Quality Analysis
 
-Before disease prediction, the system evaluates image quality.
+Before disease prediction the system validates image quality.
 
 ### Quality Checks
 
-* Image readability validation
-* Blur detection using OpenCV
-* Brightness analysis
-* Focus assessment
+* File Validation
+* Image Readability Check
+* Blur Detection
+* Brightness Analysis
+* Focus Assessment
 
-### Farmer-Friendly Results
+### User-Friendly Results
 
-* Focus → Sharp / Blurry
-* Lighting → Good / Too Dark / Too Bright
+* Focus: Sharp / Blurry
+* Lighting: Good / Too Dark / Too Bright
 
-### Advanced Diagnostics
+### Technical Diagnostics
 
 * Blur Score
 * Brightness Score
 * Quality Classification
 
-This prevents unreliable predictions caused by poor-quality images.
-
 ---
 
 ## 📊 Confidence & Reliability Analysis
 
-Predictions are grouped into reliability levels.
-
 | Confidence Score | Reliability |
 | ---------------- | ----------- |
 | 90%+             | High        |
-| 75% – 89%        | Medium      |
+| 75%-89%          | Medium      |
 | Below 75%        | Low         |
 
-Low-confidence predictions automatically generate advisory messages encouraging users to upload clearer images.
+Low-confidence predictions automatically generate guidance asking users to upload clearer images.
 
 ---
 
 ## 💊 Agricultural Advisory Engine
 
-For every detected disease, the platform provides:
+For every detected disease the platform provides:
 
 * Cause
 * Symptoms
@@ -136,54 +127,115 @@ For every detected disease, the platform provides:
 * Prevention
 * Severity
 
-This transforms the application from a simple classifier into a practical decision-support system.
+The recommendation engine is powered through a structured agricultural knowledge base.
 
 ---
 
-## 🗄 Prediction History Management
+## 🗄 MongoDB Atlas Prediction History
 
-All disease predictions are automatically stored in MongoDB Atlas.
+All predictions are stored in MongoDB Atlas.
 
 Stored Information:
 
-* Crop Name
+* Crop
 * Disease
-* Confidence Score
-* Reliability Level
+* Class Name
+* Confidence
+* Reliability
 * Severity
-* Prediction Status
-* Treatment Recommendation
-* Prevention Guidance
-* Prediction Timestamp
+* Status
+* Blur Score
+* Brightness Score
+* Cause
+* Symptoms
+* Treatment
+* Prevention
+* Timestamp
+* User Feedback
 
 Benefits:
 
 * Historical disease tracking
-* Scan history management
-* Farmer record keeping
-* Future analytics support
+* Farmer record management
+* Future retraining support
+* Dashboard analytics
 
 ---
 
 ## 📄 PDF Report Generation
 
-Users can generate downloadable crop health reports.
+Users can generate downloadable crop health reports directly from:
 
-Each report includes:
+* Disease Detection Page
+* Prediction History Page
 
-* Crop Name
-* Disease Name
-* Confidence Score
-* Reliability Level
+Each report contains:
+
+* Crop
+* Disease
+* Confidence
+* Reliability
 * Severity
 * Cause
 * Symptoms
 * Treatment
 * Prevention
-* Prediction Status
-* Report Generation Timestamp
+* Status
+* Timestamp
 
-Reports are generated dynamically using ReportLab.
+Generated dynamically using ReportLab.
+
+---
+
+## 👍 Human Feedback Loop
+
+Users can provide feedback on predictions:
+
+* 👍 Correct
+* 👎 Wrong
+
+Stored in MongoDB Atlas.
+
+Benefits:
+
+* Human-in-the-loop learning
+* Future model retraining
+* Continuous improvement
+* Real-world accuracy validation
+
+---
+
+# 📈 Dashboard Analytics
+
+Real-time dashboard analytics are generated directly from MongoDB Atlas.
+
+Current Metrics:
+
+* Total Scans
+* Diseased Leaves
+* Healthy Leaves
+* Average Confidence
+* Most Detected Disease
+* Most Scanned Crop
+* Correct Feedback Count
+* Wrong Feedback Count
+* Feedback Accuracy
+
+---
+
+# 📊 Dashboard Visualizations
+
+### Disease Distribution
+
+Most frequently detected diseases.
+
+### Crop Distribution
+
+Most scanned crops.
+
+### Confidence Trend
+
+Prediction confidence trends over time.
 
 ---
 
@@ -201,9 +253,9 @@ Multi-Class Image Classification
 
 38 Plant Disease Classes
 
-## Model Architecture
+## Architecture
 
-Convolutional Neural Network (CNN)
+Custom CNN
 
 ## Framework
 
@@ -211,20 +263,16 @@ TensorFlow / Keras
 
 ## Validation Accuracy
 
-**94% Validation Accuracy**
-
-> Note: PlantVillage contains laboratory-controlled images. Real-world deployment requires additional field image training and validation.
+94%
 
 ---
 
 # 🌾 Supported Crops
 
-The current version supports diseases across multiple crops including:
-
 * Apple
 * Potato
 * Tomato
-* Corn (Maize)
+* Corn
 * Grape
 * Peach
 * Strawberry
@@ -238,54 +286,35 @@ The current version supports diseases across multiple crops including:
 
 ---
 
-# 🦠 Example Diseases Detected
-
-* Apple Scab
-* Black Rot
-* Cedar Apple Rust
-* Potato Early Blight
-* Potato Late Blight
-* Tomato Mosaic Virus
-* Tomato Leaf Mold
-* Tomato Yellow Leaf Curl Virus
-* Common Rust (Corn)
-* Powdery Mildew
-* Healthy Leaves
-
-**Total Supported Classes: 38**
-
----
-
 # 🤖 Agent-Based Architecture
 
 ## Disease Detection Agent
 
-### Responsibilities
+Responsibilities:
 
 * Image preprocessing
-* CNN inference
-* Confidence calculation
-* Crop extraction
 * Disease classification
+* Confidence scoring
+* Crop extraction
 
-### Output
+Outputs:
 
 * Crop
 * Disease
 * Confidence
-* Prediction Status
+* Status
 
 ---
 
 ## Recommendation Agent
 
-### Responsibilities
+Responsibilities:
 
-* Query disease knowledge base
-* Retrieve disease information
-* Generate agricultural recommendations
+* Knowledge retrieval
+* Disease advisory generation
+* Treatment recommendation
 
-### Output
+Outputs:
 
 * Cause
 * Symptoms
@@ -299,34 +328,36 @@ The current version supports diseases across multiple crops including:
 
 ```text
 React Frontend
-       │
-       ▼
+        │
+        ▼
 FastAPI Backend
-       │
-       ▼
+        │
+        ▼
 Validation Layer
-(File + Quality Checks)
-       │
-       ▼
+(File Validation + Quality Check)
+        │
+        ▼
 Disease Detection Agent
-       │
-       ▼
+        │
+        ▼
 TensorFlow CNN Model
-       │
-       ▼
+        │
+        ▼
 Recommendation Agent
-       │
-       ▼
+        │
+        ▼
 Disease Knowledge Base
-       │
-       ▼
+(JSON)
+        │
+        ▼
 MongoDB Atlas
-       │
-       ▼
+        │
+        ├── Prediction History
+        ├── Feedback Storage
+        └── Dashboard Analytics
+        │
+        ▼
 PDF Report Generator
-       │
-       ▼
-Prediction History Dashboard
 ```
 
 # 🛠 Technology Stack
@@ -335,8 +366,9 @@ Prediction History Dashboard
 
 * React.js
 * Axios
+* Recharts
+* Lucide React
 * CSS3
-* Lucide React Icons
 
 ## Backend
 
@@ -397,7 +429,7 @@ AgriAISenseV1/
 
 # ⚙️ Installation
 
-## Backend Setup
+## Backend
 
 ```bash
 conda activate plantai
@@ -409,7 +441,7 @@ cd backend
 uvicorn app:app --reload
 ```
 
-Backend URL:
+Backend:
 
 ```text
 http://127.0.0.1:8000
@@ -417,7 +449,7 @@ http://127.0.0.1:8000
 
 ---
 
-## Frontend Setup
+## Frontend
 
 ```bash
 cd frontend
@@ -427,7 +459,7 @@ npm install
 npm start
 ```
 
-Frontend URL:
+Frontend:
 
 ```text
 http://localhost:3000
@@ -435,18 +467,18 @@ http://localhost:3000
 
 ---
 
-# 🔄 Sample Workflow
+# 🔄 End-to-End Workflow
 
-1. Upload crop leaf image
-2. System validates image quality
-3. CNN model predicts disease
-4. Confidence score calculated
-5. Reliability level assigned
-6. Knowledge base queried
-7. Recommendations generated
-8. Prediction stored in MongoDB Atlas
-9. PDF report generated on demand
-10. Prediction history updated
+1. Upload crop image
+2. Validate image quality
+3. Predict disease
+4. Calculate confidence
+5. Retrieve recommendations
+6. Store in MongoDB Atlas
+7. Generate PDF report
+8. Save prediction history
+9. Collect user feedback
+10. Display dashboard analytics
 
 ---
 
@@ -454,26 +486,26 @@ http://localhost:3000
 
 ## Phase 2
 
-* Dashboard Analytics
-* Disease Trend Analysis
-* Crop Health Statistics
-* Farmer Activity Insights
+* MobileNetV2 Model Upgrade
+* Model Versioning
+* Feedback-Based Retraining
+* Advanced Analytics
 
 ## Phase 3
 
 * AI Farmer Chatbot
-* Weather Risk Prediction
-* Crop Recommendation Engine
+* Weather Intelligence Agent
+* Crop Recommendation Agent
 * Multi-language Support
 
 ## Phase 4
 
 * Multi-Agent Agricultural Intelligence Platform
 * Yield Forecasting
-* Market Price Prediction
+* Market Intelligence
 * Precision Farming Analytics
-* IoT Sensor Integration
-* Satellite Data Integration
+* IoT Integration
+* Satellite Intelligence
 
 ---
 
@@ -487,17 +519,15 @@ AgriAI helps farmers:
 
 ✅ Improve treatment decisions
 
-✅ Monitor crop health more effectively
+✅ Maintain crop health records
 
-✅ Maintain disease history records
+✅ Generate AI-powered reports
 
-✅ Generate crop health reports
+✅ Track disease trends
 
-✅ Access AI-powered agricultural guidance
+✅ Provide feedback to improve AI
 
-✅ Improve farming productivity
-
-The platform demonstrates how Artificial Intelligence, Computer Vision, Deep Learning, and Agricultural Knowledge Systems can be combined to solve real-world farming challenges.
+✅ Access intelligent agricultural recommendations
 
 ---
 
