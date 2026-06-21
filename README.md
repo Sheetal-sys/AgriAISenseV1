@@ -1,30 +1,41 @@
 # 🌿 AgriAI Sense V1
 
-### AI-Powered Crop Disease Detection, Analytics & Agricultural Advisory Platform
+## AI-Powered Crop Disease Detection & Agricultural Intelligence Platform
 
-AgriAI Sense V1 is an intelligent agriculture platform that combines Artificial Intelligence, Deep Learning, Computer Vision, Agricultural Knowledge Systems, Cloud Databases, and Human Feedback Learning to help farmers detect crop diseases and make informed decisions.
+AgriAI Sense V1 is an end-to-end AI-powered agriculture platform designed to help farmers identify crop diseases from leaf images, receive treatment recommendations, generate reports, track historical predictions, and improve model accuracy through human feedback.
 
-The system provides disease detection, image quality analysis, agricultural recommendations, prediction history management, dashboard analytics, PDF report generation, and a continuous feedback loop for future model improvement.
+The platform combines:
+
+* Deep Learning
+* Computer Vision
+* FastAPI
+* React
+* MongoDB Atlas
+* Agricultural Knowledge Systems
+
+to provide a practical crop disease detection solution for real-world agricultural use cases.
 
 ---
 
 # 🚀 Project Overview
 
-Crop diseases significantly impact agricultural productivity and farmer income.
+Crop diseases cause significant agricultural losses worldwide.
 
-AgriAI Sense V1 helps solve this challenge by allowing farmers to upload crop leaf images and instantly receive:
+AgriAI enables farmers and agricultural professionals to upload a leaf image and instantly receive:
 
 ✅ Disease Identification
 
-✅ Disease Severity Assessment
+✅ Crop Identification
 
-✅ Confidence Evaluation
+✅ Confidence Score
 
 ✅ Reliability Classification
 
+✅ Disease Severity
+
 ✅ Cause Analysis
 
-✅ Symptom Identification
+✅ Symptom Detection
 
 ✅ Treatment Recommendations
 
@@ -32,38 +43,13 @@ AgriAI Sense V1 helps solve this challenge by allowing farmers to upload crop le
 
 ✅ Image Quality Assessment
 
-✅ Prediction History Tracking
+✅ PDF Report Generation
 
-✅ MongoDB Atlas Cloud Storage
+✅ Prediction History Tracking
 
 ✅ Dashboard Analytics
 
-✅ PDF Report Generation
-
 ✅ Human Feedback Collection
-
----
-
-# 🎥 Project Demo
-
-```text
-video/
-└── AgriAI.mp4
-```
-
-Demo showcases:
-
-* Disease Detection
-* Healthy Leaf Detection
-* High Confidence Predictions
-* Low Confidence Warnings
-* Blur Detection
-* Image Quality Validation
-* MongoDB Atlas Integration
-* Prediction History
-* Analytics Dashboard
-* PDF Report Generation
-* Feedback Collection
 
 ---
 
@@ -71,55 +57,67 @@ Demo showcases:
 
 ## 🌱 AI Disease Detection
 
-* CNN-based disease classification
-* Multi-class plant disease detection
-* Healthy vs Diseased leaf identification
+The platform uses a fine-tuned MobileNetV2 deep learning model trained on the PlantVillage dataset.
+
+Features:
+
+* Multi-class disease classification
+* Healthy leaf detection
 * Real-time prediction
-* Confidence-based evaluation
-* Reliability categorization
+* Confidence scoring
+* Reliability classification
+* Crop extraction from prediction labels
 
 ---
 
-## 📷 Smart Image Quality Analysis
+## 📷 Image Quality Analysis
 
-Before disease prediction the system validates image quality.
+Before prediction, every image is validated.
 
-### Quality Checks
+Checks include:
 
-* File Validation
-* Image Readability Check
+### Image Validation
+
+* Supported format validation
+* Corrupt image detection
+* File size validation
+
+### Quality Assessment
+
 * Blur Detection
 * Brightness Analysis
-* Focus Assessment
+* Focus Evaluation
 
-### User-Friendly Results
-
-* Focus: Sharp / Blurry
-* Lighting: Good / Too Dark / Too Bright
-
-### Technical Diagnostics
+Outputs:
 
 * Blur Score
 * Brightness Score
-* Quality Classification
+* Focus Status
+* Lighting Status
+
+Low-quality images are automatically rejected.
 
 ---
 
-## 📊 Confidence & Reliability Analysis
+## 📊 Confidence & Reliability Engine
+
+Predictions are categorized into reliability levels.
 
 | Confidence Score | Reliability |
 | ---------------- | ----------- |
 | 90%+             | High        |
-| 75%-89%          | Medium      |
+| 75–89%           | Medium      |
 | Below 75%        | Low         |
 
-Low-confidence predictions automatically generate guidance asking users to upload clearer images.
+Low-confidence predictions generate warning messages and request better-quality images.
 
 ---
 
-## 💊 Agricultural Advisory Engine
+## 💊 Agricultural Recommendation Engine
 
-For every detected disease the platform provides:
+The Recommendation Agent retrieves information from a structured agricultural knowledge base.
+
+For each disease:
 
 * Cause
 * Symptoms
@@ -127,47 +125,13 @@ For every detected disease the platform provides:
 * Prevention
 * Severity
 
-The recommendation engine is powered through a structured agricultural knowledge base.
-
----
-
-## 🗄 MongoDB Atlas Prediction History
-
-All predictions are stored in MongoDB Atlas.
-
-Stored Information:
-
-* Crop
-* Disease
-* Class Name
-* Confidence
-* Reliability
-* Severity
-* Status
-* Blur Score
-* Brightness Score
-* Cause
-* Symptoms
-* Treatment
-* Prevention
-* Timestamp
-* User Feedback
-
-Benefits:
-
-* Historical disease tracking
-* Farmer record management
-* Future retraining support
-* Dashboard analytics
+are automatically displayed.
 
 ---
 
 ## 📄 PDF Report Generation
 
-Users can generate downloadable crop health reports directly from:
-
-* Disease Detection Page
-* Prediction History Page
+Farmers can download professional crop health reports.
 
 Each report contains:
 
@@ -180,40 +144,65 @@ Each report contains:
 * Symptoms
 * Treatment
 * Prevention
-* Status
+* Image Quality Analysis
+* Report ID
 * Timestamp
 
 Generated dynamically using ReportLab.
 
 ---
 
-## 👍 Human Feedback Loop
+## 🗄 Prediction History Management
 
-Users can provide feedback on predictions:
+All predictions are stored in MongoDB Atlas.
 
-* 👍 Correct
-* 👎 Wrong
+Stored Data:
 
-Stored in MongoDB Atlas.
+* Crop
+* Disease
+* Confidence
+* Reliability
+* Severity
+* Image Quality Metrics
+* Recommendation Details
+* Feedback
+* Timestamp
 
 Benefits:
 
-* Human-in-the-loop learning
-* Future model retraining
-* Continuous improvement
-* Real-world accuracy validation
+* Historical tracking
+* Farmer record management
+* Future retraining dataset
+* Analytics generation
 
 ---
 
-# 📈 Dashboard Analytics
+## 👍 Human Feedback Learning
 
-Real-time dashboard analytics are generated directly from MongoDB Atlas.
+Users can validate predictions using:
+
+👍 Correct
+
+👎 Wrong
+
+Feedback is stored separately and can later be used for:
+
+* Model improvement
+* Accuracy monitoring
+* Retraining datasets
+* Performance evaluation
+
+---
+
+# 📈 Analytics Dashboard
+
+The dashboard provides real-time insights generated from MongoDB Atlas.
 
 Current Metrics:
 
 * Total Scans
-* Diseased Leaves
 * Healthy Leaves
+* Diseased Leaves
 * Average Confidence
 * Most Detected Disease
 * Most Scanned Crop
@@ -237,52 +226,80 @@ Most scanned crops.
 
 Prediction confidence trends over time.
 
+### Feedback Distribution
+
+Correct vs Wrong predictions.
+
 ---
 
-# 📈 Model Performance
+# 🤖 AI Model Information
 
 ## Dataset
 
 PlantVillage Dataset
 
+### Dataset Size
+
+* 87,870 Images
+* 38 Classes
+
+### Supported Crops
+
+* Apple
+* Corn
+* Grape
+* Orange
+* Peach
+* Pepper
+* Potato
+* Raspberry
+* Soybean
+* Squash
+* Strawberry
+* Tomato
+* Cherry
+* Blueberry
+
+---
+
+## Model Architecture
+
+### MobileNetV2 (Transfer Learning)
+
+Benefits:
+
+* Lightweight
+* Fast Inference
+* Mobile Friendly
+* Production Ready
+* Better Generalization
+
+---
+
+## Training Configuration
+
+* Image Size: 160 × 160
+* Transfer Learning
+* Fine-Tuning Enabled
+* TensorFlow/Keras
+
+---
+
+## Validation Accuracy
+
+🎯 **96.58%**
+
+---
+
 ## Classification Type
 
 Multi-Class Image Classification
 
+---
+
 ## Total Classes
 
 38 Plant Disease Classes
-
-## Architecture
-
-Custom CNN
-
-## Framework
-
-TensorFlow / Keras
-
-## Validation Accuracy
-
-94%
-
----
-
-# 🌾 Supported Crops
-
-* Apple
-* Potato
-* Tomato
-* Corn
-* Grape
-* Peach
-* Strawberry
-* Pepper
-* Orange
-* Soybean
-* Raspberry
-* Cherry
-* Squash
-* Blueberry
 
 ---
 
@@ -293,8 +310,9 @@ TensorFlow / Keras
 Responsibilities:
 
 * Image preprocessing
-* Disease classification
-* Confidence scoring
+* Model inference
+* Confidence calculation
+* Disease extraction
 * Crop extraction
 
 Outputs:
@@ -302,7 +320,7 @@ Outputs:
 * Crop
 * Disease
 * Confidence
-* Status
+* Reliability
 
 ---
 
@@ -311,8 +329,8 @@ Outputs:
 Responsibilities:
 
 * Knowledge retrieval
-* Disease advisory generation
-* Treatment recommendation
+* Treatment guidance
+* Prevention guidance
 
 Outputs:
 
@@ -328,35 +346,34 @@ Outputs:
 
 ```text
 React Frontend
-        │
-        ▼
+      │
+      ▼
 FastAPI Backend
-        │
-        ▼
+      │
+      ▼
 Validation Layer
-(File Validation + Quality Check)
-        │
-        ▼
+(File Validation + Quality Checks)
+      │
+      ▼
 Disease Detection Agent
-        │
-        ▼
-TensorFlow CNN Model
-        │
-        ▼
+      │
+      ▼
+MobileNetV2 Model
+      │
+      ▼
 Recommendation Agent
-        │
-        ▼
-Disease Knowledge Base
-(JSON)
-        │
-        ▼
+      │
+      ▼
+Knowledge Base (JSON)
+      │
+      ▼
 MongoDB Atlas
-        │
-        ├── Prediction History
-        ├── Feedback Storage
-        └── Dashboard Analytics
-        │
-        ▼
+      │
+      ├── Prediction History
+      ├── User Feedback
+      └── Dashboard Analytics
+      │
+      ▼
 PDF Report Generator
 ```
 
@@ -404,7 +421,7 @@ PDF Report Generator
 # 📂 Project Structure
 
 ```text
-AgriAISenseV1/
+AgriAI/
 
 ├── backend/
 │   ├── agents/
@@ -413,16 +430,16 @@ AgriAISenseV1/
 │   ├── uploads/
 │   ├── app.py
 │   ├── database.py
-│   └── report_generator.py
+│   ├── report_generator.py
+│   └── requirements.txt
 │
 ├── frontend/
+│   ├── public/
 │   ├── src/
-│   └── public/
+│   └── package.json
 │
-├── video/
-│   └── AgriAI.mp4
-│
-├── requirements.txt
+├── notebook/
+│   └── MobileNetV2_Training.ipynb
 │
 └── README.md
 ```
@@ -469,16 +486,16 @@ http://localhost:3000
 
 # 🔄 End-to-End Workflow
 
-1. Upload crop image
+1. Upload leaf image
 2. Validate image quality
-3. Predict disease
-4. Calculate confidence
+3. Run MobileNetV2 prediction
+4. Calculate confidence score
 5. Retrieve recommendations
-6. Store in MongoDB Atlas
+6. Store prediction in MongoDB
 7. Generate PDF report
 8. Save prediction history
 9. Collect user feedback
-10. Display dashboard analytics
+10. Update dashboard analytics
 
 ---
 
@@ -486,26 +503,26 @@ http://localhost:3000
 
 ## Phase 2
 
-* MobileNetV2 Model Upgrade
-* Model Versioning
+* Real Farm Image Dataset
+* Data Augmentation Pipeline
 * Feedback-Based Retraining
-* Advanced Analytics
+* Model Version Management
 
 ## Phase 3
 
-* AI Farmer Chatbot
 * Weather Intelligence Agent
 * Crop Recommendation Agent
-* Multi-language Support
+* AI Farmer Chatbot
+* Multi-Language Support
 
 ## Phase 4
 
 * Multi-Agent Agricultural Intelligence Platform
-* Yield Forecasting
+* Yield Prediction
 * Market Intelligence
-* Precision Farming Analytics
-* IoT Integration
-* Satellite Intelligence
+* Precision Farming
+* Satellite Data Integration
+* IoT Sensor Integration
 
 ---
 
@@ -519,15 +536,15 @@ AgriAI helps farmers:
 
 ✅ Improve treatment decisions
 
-✅ Maintain crop health records
+✅ Maintain crop health history
 
 ✅ Generate AI-powered reports
 
 ✅ Track disease trends
 
-✅ Provide feedback to improve AI
+✅ Improve AI through feedback
 
-✅ Access intelligent agricultural recommendations
+✅ Receive actionable agricultural recommendations
 
 ---
 
@@ -535,6 +552,6 @@ AgriAI helps farmers:
 
 **Sheetal Sharma**
 
-AI Engineer | Data Science Enthusiast | Agricultural Intelligence Systems
+AI & Data Science Enthusiast
 
-**AgriAI Sense V1**
+AgriAI Sense V1 – Intelligent Agriculture Platform
