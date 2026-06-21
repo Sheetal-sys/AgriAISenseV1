@@ -1,8 +1,10 @@
+import certifi
 import os
 from datetime import datetime, timezone
+
+from bson import ObjectId
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from bson import ObjectId
 
 load_dotenv()
 
@@ -10,7 +12,13 @@ MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "agri_ai")
 MONGO_COLLECTION_NAME = os.getenv("MONGO_COLLECTION_NAME", "predictions")
 
-client = MongoClient(MONGO_URI)
+client = MongoClient(
+    MONGO_URI,
+    tls=True,
+    tlsCAFile=certifi.where(),
+    serverSelectionTimeoutMS=5000
+)
+
 db = client[MONGO_DB_NAME]
 
 predictions_collection = db[MONGO_COLLECTION_NAME]
@@ -50,9 +58,12 @@ def update_prediction_feedback(prediction_id, feedback):
     if feedback not in ["correct", "wrong"]:
         return None
 
-    prediction = predictions_collection.find_one(
-        {"_id": ObjectId(prediction_id)}
-    )
+    try:
+        object_id = ObjectId(prediction_id)
+    except Exception:
+        return None
+
+    prediction = predictions_collection.find_one({"_id": object_id})
 
     if not prediction:
         return None
@@ -60,7 +71,7 @@ def update_prediction_feedback(prediction_id, feedback):
     feedback_time = datetime.now(timezone.utc)
 
     predictions_collection.update_one(
-        {"_id": ObjectId(prediction_id)},
+        {"_id": object_id},
         {
             "$set": {
                 "feedback": feedback,
@@ -97,30 +108,6 @@ def update_prediction_feedback(prediction_id, feedback):
     }
 
 
-    feedback_document = {
-        "prediction_id": prediction_id,
-        "crop": prediction.get("crop"),
-        "predicted_disease": prediction.get("disease"),
-        "class_name": prediction.get("class_name"),
-        "confidence": prediction.get("confidence"),
-        "confidence_level": prediction.get("confidence_level"),
-        "severity": prediction.get("severity"),
-        "status": prediction.get("status"),
-        "model_version": prediction.get("model_version"),
-        "model_type": prediction.get("model_type"),
-        "feedback": feedback,
-        "created_at": feedback_time
-    }
-
-    feedback_collection.insert_one(feedback_document)
-
-    return {
-        "prediction_id": prediction_id,
-        "feedback": feedback,
-        "feedback_created_at": feedback_time.isoformat()
-    }
-
-
 def get_prediction_history(page=1, limit=10):
     page = max(page, 1)
     limit = min(max(limit, 1), 50)
@@ -140,7 +127,9 @@ def get_prediction_history(page=1, limit=10):
 
     for record in records:
         record["_id"] = str(record["_id"])
-        record["created_at"] = record["created_at"].isoformat()
+
+        if record.get("created_at"):
+            record["created_at"] = record["created_at"].isoformat()
 
         if record.get("feedback_created_at"):
             record["feedback_created_at"] = record["feedback_created_at"].isoformat()
@@ -177,7 +166,6 @@ def get_dashboard_analytics():
     )
 
     avg_confidence = 0
-
     if avg_confidence_result:
         avg_confidence = round(
             avg_confidence_result[0].get("avg_confidence", 0),
@@ -218,12 +206,12 @@ def get_dashboard_analytics():
     )
 
     feedback_correct = predictions_collection.count_documents({
-    "feedback": "correct"
+        "feedback": "correct"
     })
 
     feedback_wrong = predictions_collection.count_documents({
-    "feedback": "wrong"
-     })
+        "feedback": "wrong"
+    })
 
     return {
         "total_scans": total_scans,
@@ -285,16 +273,15 @@ def get_dashboard_charts():
         })
 
     feedback_distribution = [
-    {
-        "name": "Correct",
-        "count": predictions_collection.count_documents({"feedback": "correct"})
-    },
-    {
-        "name": "Wrong",
-        "count": predictions_collection.count_documents({"feedback": "wrong"})
-    }
-]
-    
+        {
+            "name": "Correct",
+            "count": predictions_collection.count_documents({"feedback": "correct"})
+        },
+        {
+            "name": "Wrong",
+            "count": predictions_collection.count_documents({"feedback": "wrong"})
+        }
+    ]
 
     return {
         "disease_distribution": [
