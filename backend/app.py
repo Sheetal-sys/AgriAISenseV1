@@ -5,6 +5,15 @@ from database import (
     get_dashboard_charts,
     update_prediction_feedback
 )
+from user_preferences import (
+    get_user_profile,
+    update_user_profile,
+    get_user_settings,
+    update_user_settings,
+    get_notifications,
+    mark_notifications_read
+)
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse
@@ -100,6 +109,19 @@ def safe_filename(value: str):
 def home():
     return {"message": "AgriAI Disease Detection API is running"}
 
+@app.get("/system/status")
+def get_system_status():
+    analytics = get_dashboard_analytics()
+
+    return {
+        "api_status": "active",
+        "database_status": "connected",
+        "active_module": "Disease Detection",
+        "total_scans": analytics.get("total_scans", 0),
+        "average_confidence": analytics.get("average_confidence", 0),
+        "feedback_correct": analytics.get("feedback_correct", 0),
+        "feedback_wrong": analytics.get("feedback_wrong", 0)
+    }
 
 @app.get("/history")
 def get_history(page: int = 1, limit: int = 10):
@@ -158,6 +180,34 @@ def generate_report(data: dict):
         }
     )
 
+@app.get("/user/profile")
+def user_profile():
+    return get_user_profile()
+
+
+@app.put("/user/profile")
+def user_profile_update(data: dict):
+    return update_user_profile(data)
+
+
+@app.get("/user/settings")
+def user_settings():
+    return get_user_settings()
+
+
+@app.put("/user/settings")
+def user_settings_update(data: dict):
+    return update_user_settings(data)
+
+
+@app.get("/notifications")
+def notifications():
+    return get_notifications()
+
+
+@app.patch("/notifications/read")
+def notifications_read():
+    return mark_notifications_read()
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):

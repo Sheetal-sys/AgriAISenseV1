@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Bell, Settings, UserCircle, X } from "lucide-react";
+import NotificationsModal from "./modals/NotificationsModal";
 
 function Header() {
   const [modal, setModal] = useState(null);
@@ -28,14 +29,7 @@ function Header() {
               <X size={18} />
             </button>
 
-            {modal === "notifications" && (
-              <>
-                <h2>Notifications</h2>
-                <p>✅ Disease detection API is active.</p>
-                <p>🌿 Last scan module ready.</p>
-                <p>⚠️ Weather risk agent coming soon.</p>
-              </>
-            )}
+            {modal === "notifications" && <NotificationsModal />}
 
             {modal === "settings" && (
               <>
