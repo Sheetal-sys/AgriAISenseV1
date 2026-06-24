@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import {
+  getAnalytics,
+  getAnalyticsCharts
+} from "../services/analyticsService";
+
 import {
   Activity,
   Leaf,
@@ -10,6 +14,7 @@ import {
   ThumbsDown,
   Target
 } from "lucide-react";
+
 import {
   BarChart,
   Bar,
@@ -31,13 +36,10 @@ function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      axios.get("http://127.0.0.1:8000/analytics"),
-      axios.get("http://127.0.0.1:8000/analytics/charts")
-    ])
-      .then(([analyticsRes, chartsRes]) => {
-        setAnalytics(analyticsRes.data);
-        setCharts(chartsRes.data);
+    Promise.all([getAnalytics(), getAnalyticsCharts()])
+      .then(([analyticsData, chartsData]) => {
+        setAnalytics(analyticsData);
+        setCharts(chartsData);
       })
       .catch((err) => console.error("Dashboard analytics fetch failed", err))
       .finally(() => setLoading(false));
@@ -48,20 +50,22 @@ function Home() {
   const totalFeedback = correctFeedback + wrongFeedback;
 
   const feedbackAccuracy =
-    totalFeedback > 0 ? ((correctFeedback / totalFeedback) * 100).toFixed(2) : 0;
+    totalFeedback > 0
+      ? ((correctFeedback / totalFeedback) * 100).toFixed(2)
+      : 0;
 
   const diseaseData = charts?.disease_distribution || [];
-  const cropData = charts?.crop_distribution || [];
   const confidenceData = charts?.confidence_trend || [];
 
   const cropPieData = useMemo(() => {
+    const cropData = charts?.crop_distribution || [];
     const total = cropData.reduce((sum, item) => sum + item.count, 0);
 
     return cropData.map((item) => ({
       ...item,
       percent: total > 0 ? ((item.count / total) * 100).toFixed(1) : 0
     }));
-  }, [cropData]);
+  }, [charts]);
 
   if (loading) {
     return (
@@ -77,7 +81,9 @@ function Home() {
       <section className="dashboard-title-row">
         <div>
           <h1>AgriAI Dashboard</h1>
-          <p>Real-time analytics and insights from your farm intelligence platform.</p>
+          <p>
+            Real-time analytics and insights from your farm intelligence platform.
+          </p>
         </div>
       </section>
 
@@ -190,15 +196,10 @@ function Home() {
           <ChartHeader title="Feedback Distribution" subtitle="Correct vs wrong feedback submitted by users" />
 
           <div className="feedback-progress">
-            <div
-              className="feedback-correct"
-              style={{ width: `${feedbackAccuracy}%` }}
-            >
+            <div className="feedback-correct" style={{ width: `${feedbackAccuracy}%` }}>
               Correct {correctFeedback}
             </div>
-            <div className="feedback-wrong">
-              Wrong {wrongFeedback}
-            </div>
+            <div className="feedback-wrong">Wrong {wrongFeedback}</div>
           </div>
 
           <div className="feedback-mini-stats">

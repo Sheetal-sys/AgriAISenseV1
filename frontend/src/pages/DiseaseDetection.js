@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { predictDisease } from "../services/predictionService";
+import { generateReport } from "../services/reportService";
+import { submitFeedback } from "../services/feedbackService";
 import {
   UploadCloud,
   ShieldCheck,
@@ -46,12 +48,8 @@ function DiseaseDetection() {
       setLoading(true);
       setErrorMessage("");
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/predict",
-        formData
-      );
-
-      setResult(response.data);
+      const data = await predictDisease(formData);
+      setResult(data);
     } catch (error) {
       console.error(error);
 
@@ -71,15 +69,9 @@ function DiseaseDetection() {
     try {
       setReportLoading(true);
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/generate-report",
-        result,
-        {
-          responseType: "blob"
-        }
-      );
+      const reportBlob = await generateReport(result);
 
-      const pdfBlob = new Blob([response.data], {
+      const pdfBlob = new Blob([reportBlob], {
         type: "application/pdf"
       });
 
@@ -107,25 +99,19 @@ function DiseaseDetection() {
     }
   };
 
-  const getStatusIcon = () => {
-    if (!result) return <Info size={18} />;
-    if (result.status === "success") return <CheckCircle size={18} />;
-    if (result.status === "uncertain") return <AlertTriangle size={18} />;
-    if (result.status === "poor_quality") return <AlertTriangle size={18} />;
-    return <Info size={18} />;
-  };
-
-  const submitFeedback = async (feedbackValue) => {
+  const handleFeedbackSubmit = async (feedbackValue) => {
   if (!result?._id) {
-    setErrorMessage("Feedback can be submitted only after saved prediction.");
+    setErrorMessage(
+      "Feedback can be submitted only after saved prediction."
+    );
     return;
   }
 
   try {
-    await axios.post("http://127.0.0.1:8000/feedback", {
-      prediction_id: result._id,
-      feedback: feedbackValue
-    });
+    await submitFeedback(
+      result._id,
+      feedbackValue
+    );
 
     setResult((prev) => ({
       ...prev,
@@ -133,11 +119,19 @@ function DiseaseDetection() {
     }));
   } catch (error) {
     console.error("Feedback failed", error);
-    setErrorMessage("Unable to submit feedback. Please try again.");
+    setErrorMessage(
+      "Unable to submit feedback. Please try again."
+    );
   }
 };
 
-
+  const getStatusIcon = () => {
+    if (!result) return <Info size={18} />;
+    if (result.status === "success") return <CheckCircle size={18} />;
+    if (result.status === "uncertain") return <AlertTriangle size={18} />;
+    if (result.status === "poor_quality") return <AlertTriangle size={18} />;
+    return <Info size={18} />;
+  };
 
   const getLightingLabel = (score) => {
     if (score === undefined || score === null) return "Unknown";
@@ -333,30 +327,38 @@ function DiseaseDetection() {
               {renderAdvancedDetails()}
 
               <div className="feedback-box">
-  <p>Was this prediction correct?</p>
+                <p>Was this prediction correct?</p>
 
-  <div className="feedback-actions">
-    <button
-      className={result.feedback === "correct" ? "feedback-btn active" : "feedback-btn"}
-      onClick={() => submitFeedback("correct")}
-      disabled={result.feedback}
-    >
-      👍 Correct
-    </button>
+                <div className="feedback-actions">
+                  <button
+                    className={
+                      result.feedback === "correct"
+                        ? "feedback-btn active"
+                        : "feedback-btn"
+                    }
+                    onClick={() => handleFeedbackSubmit("correct")}
+                    disabled={Boolean(result.feedback)}
+                  >
+                    👍 Correct
+                  </button>
 
-    <button
-      className={result.feedback === "wrong" ? "feedback-btn active wrong" : "feedback-btn wrong"}
-      onClick={() => submitFeedback("wrong")}
-      disabled={result.feedback}
-    >
-      👎 Wrong
-    </button>
-  </div>
+                  <button
+                    className={
+                      result.feedback === "wrong"
+                        ? "feedback-btn active wrong"
+                        : "feedback-btn wrong"
+                    }
+                    onClick={() => handleFeedbackSubmit("wrong")}
+                    disabled={Boolean(result.feedback)}
+                  >
+                    👎 Wrong
+                  </button>
+                </div>
 
-  {result.feedback && (
-    <small>Feedback saved: {result.feedback}</small>
-  )}
-</div>
+                {result.feedback && (
+                  <small>Feedback saved: {result.feedback}</small>
+                )}
+              </div>
 
               <button
                 className="report-btn"

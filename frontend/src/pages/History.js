@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import {
   Clock,
   Leaf,
@@ -10,6 +9,9 @@ import {
   CheckCircle,
   Download
 } from "lucide-react";
+import { getHistory } from "../services/historyService";
+import { submitFeedback } from "../services/feedbackService";
+import { generateReport } from "../services/reportService";
 
 function History() {
   const [history, setHistory] = useState([]);
@@ -26,11 +28,7 @@ function History() {
     try {
       append ? setLoadingMore(true) : setLoading(true);
 
-      const response = await axios.get(
-        `http://127.0.0.1:8000/history?page=${pageNumber}&limit=10`
-      );
-
-      const data = response.data;
+      const data = await getHistory(pageNumber, 10);
       const items = data.items || [];
 
       setHistory((prev) => (append ? [...prev, ...items] : items));
@@ -86,16 +84,13 @@ function History() {
     });
   };
 
-  const submitFeedback = async (item, feedbackValue) => {
+  const handleFeedbackSubmit = async (item, feedbackValue) => {
     if (!item?._id) return;
 
     try {
       setFeedbackLoadingId(item._id);
 
-      await axios.post("http://127.0.0.1:8000/feedback", {
-        prediction_id: item._id,
-        feedback: feedbackValue
-      });
+      await submitFeedback(item._id, feedbackValue);
 
       setHistory((prev) =>
         prev.map((record) =>
@@ -118,13 +113,9 @@ function History() {
     try {
       setReportLoadingId(item._id);
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/generate-report",
-        item,
-        { responseType: "blob" }
-      );
+      const reportBlob = await generateReport(item);
 
-      const pdfBlob = new Blob([response.data], {
+      const pdfBlob = new Blob([reportBlob], {
         type: "application/pdf"
       });
 
@@ -301,8 +292,10 @@ function History() {
                           ? "feedback-btn active"
                           : "feedback-btn"
                       }
-                      onClick={() => submitFeedback(item, "correct")}
-                      disabled={Boolean(item.feedback) || feedbackLoadingId === item._id}
+                      onClick={() => handleFeedbackSubmit(item, "correct")}
+                      disabled={
+                        Boolean(item.feedback) || feedbackLoadingId === item._id
+                      }
                     >
                       👍 Correct
                     </button>
@@ -313,8 +306,10 @@ function History() {
                           ? "feedback-btn active wrong"
                           : "feedback-btn wrong"
                       }
-                      onClick={() => submitFeedback(item, "wrong")}
-                      disabled={Boolean(item.feedback) || feedbackLoadingId === item._id}
+                      onClick={() => handleFeedbackSubmit(item, "wrong")}
+                      disabled={
+                        Boolean(item.feedback) || feedbackLoadingId === item._id
+                      }
                     >
                       👎 Wrong
                     </button>
