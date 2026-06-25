@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Bell,
   Settings,
-  UserCircle,
   ChevronDown,
   X
 } from "lucide-react";
@@ -15,75 +14,55 @@ function Header({ setActivePage }) {
   return (
     <>
       <header className="app-header">
-
         <div className="header-right">
-
-          <div className="notification-wrapper">
-            <button
-              className="icon-btn"
-              onClick={() => setModal("notifications")}
-            >
-              <Bell size={20}/>
-            </button>
-
-            <span className="notification-dot"></span>
-
-          </div>
-
           <button
-            className="icon-btn"
-            onClick={() => setActivePage("settings")}
+            className="header-icon-btn"
+            onClick={() => setModal("notifications")}
+            title="Notifications"
           >
-            <Settings size={20}/>
+            <Bell size={19} />
+            <span className="notification-badge">3</span>
           </button>
 
           <button
-            className="profile-btn"
-            onClick={() => setActivePage("profile")}
+            className="header-icon-btn"
+            onClick={() => setActivePage("settings")}
+            title="Settings"
           >
-            <UserCircle size={24}/>
+            <Settings size={19} />
+          </button>
 
-            <div>
+          <button
+            className="header-profile-btn"
+            onClick={() => setActivePage("profile")}
+            title="Profile"
+          >
+            <div className="header-avatar">RK</div>
 
-              <div className="profile-name">
-                Rajesh
-              </div>
-
-              <div className="profile-role">
-                Farmer
-              </div>
-
+            <div className="header-user-text">
+              <strong>Rajesh</strong>
+              <span>Farmer</span>
             </div>
 
-            <ChevronDown size={16}/>
-
+            <ChevronDown size={15} />
           </button>
-
         </div>
-
       </header>
 
-      {modal && (
-
+      {modal === "notifications" && (
         <div className="modal-backdrop">
-
           <div className="modal-card">
-
             <button
               className="modal-close"
               onClick={() => setModal(null)}
             >
-              <X size={18}/>
+              <X size={18} />
             </button>
 
-            <NotificationsModal/>
-
+            <NotificationsModal />
           </div>
-
         </div>
-
       )}
-
     </>
   );
 }

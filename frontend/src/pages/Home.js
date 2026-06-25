@@ -9,10 +9,12 @@ import {
   Leaf,
   ShieldCheck,
   Bug,
-  Sprout,
+  FileText,
+  Eye,
+  Download,
+  Server,
   ThumbsUp,
-  ThumbsDown,
-  Target
+  ThumbsDown
 } from "lucide-react";
 
 import {
@@ -51,7 +53,7 @@ function Home() {
 
   const feedbackAccuracy =
     totalFeedback > 0
-      ? ((correctFeedback / totalFeedback) * 100).toFixed(2)
+      ? ((correctFeedback / totalFeedback) * 100).toFixed(1)
       : 0;
 
   const diseaseData = charts?.disease_distribution || [];
@@ -77,156 +79,204 @@ function Home() {
   }
 
   return (
-    <div className="dashboard-page pro-dashboard">
-      <section className="dashboard-title-row">
+    <div className="dashboard-page">
+      <section className="dashboard-hero">
         <div>
-          <h1>AgriAI Dashboard</h1>
-          <p>
-            Real-time analytics and insights from your farm intelligence platform.
-          </p>
+          <h1>Good Evening, Rajesh 👋</h1>
+          <p>Here is your farm intelligence overview for today.</p>
+        </div>
+
+        <div className="dashboard-hero-pill">
+          <Server size={16} />
+          MongoDB Atlas Connected
         </div>
       </section>
 
-      <div className="pro-kpi-grid">
-        <KpiCard icon={<Activity />} label="Total Scans" value={analytics?.total_scans || 0} />
-        <KpiCard icon={<Bug />} label="Diseased Leaves" value={analytics?.diseased_leaves || 0} />
-        <KpiCard icon={<Leaf />} label="Healthy Leaves" value={analytics?.healthy_leaves || 0} />
-        <KpiCard icon={<ShieldCheck />} label="Avg Confidence" value={`${analytics?.average_confidence || 0}%`} />
-        <KpiCard icon={<Target />} label="Feedback Accuracy" value={`${feedbackAccuracy}%`} />
-      </div>
+      <section className="dashboard-kpi-grid">
+        <DashboardKpi
+          icon={<Activity size={22} />}
+          title="Total Scans"
+          value={analytics?.total_scans || 0}
+          note="+12 Today"
+          variant="green"
+        />
 
-      <div className="pro-highlight-grid">
-        <div className="pro-highlight-card">
-          <Sprout size={26} />
-          <span>Most Detected Disease</span>
-          <h2>{analytics?.top_disease || "N/A"}</h2>
-          <p>{analytics?.top_disease_count || 0} scans</p>
-        </div>
+        <DashboardKpi
+          icon={<Leaf size={22} />}
+          title="Healthy Leaves"
+          value={analytics?.healthy_leaves || 0}
+          note="Healthy crop samples"
+          variant="teal"
+        />
 
-        <div className="pro-highlight-card">
-          <Leaf size={26} />
-          <span>Most Scanned Crop</span>
-          <h2>{analytics?.top_crop || "N/A"}</h2>
-          <p>{analytics?.top_crop_count || 0} scans</p>
-        </div>
-      </div>
+        <DashboardKpi
+          icon={<Bug size={22} />}
+          title="Diseased Leaves"
+          value={analytics?.diseased_leaves || 0}
+          note="Needs attention"
+          variant="orange"
+        />
 
-      <div className="pro-chart-grid">
-        <div className="pro-chart-card">
-          <ChartHeader title="Disease Distribution" subtitle="Top detected diseases" />
+        <DashboardKpi
+          icon={<ShieldCheck size={22} />}
+          title="Avg Confidence"
+          value={`${analytics?.average_confidence || 0}%`}
+          note="Model reliability"
+          variant="purple"
+        />
 
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={diseaseData} layout="vertical" margin={{ left: 30 }}>
+        <DashboardKpi
+          icon={<FileText size={22} />}
+          title="Reports Generated"
+          value={totalFeedback || 0}
+          note="Feedback records"
+          variant="blue"
+        />
+      </section>
+
+      <section className="dashboard-main-grid">
+        <div className="dashboard-card disease-chart-card">
+          <CardTitle title="Disease Distribution" subtitle="Top detected diseases" />
+
+          <ResponsiveContainer width="100%" height={230}>
+            <BarChart data={diseaseData} layout="vertical" margin={{ left: 20 }}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.12} horizontal={false} />
-              <XAxis type="number" tick={{ fill: "#94a3b8", fontSize: 12 }} />
+              <XAxis type="number" tick={{ fill: "#94a3b8", fontSize: 11 }} />
               <YAxis
                 type="category"
                 dataKey="name"
-                width={120}
-                tick={{ fill: "#cbd5e1", fontSize: 12 }}
+                width={110}
+                tick={{ fill: "#cbd5e1", fontSize: 11 }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" fill="#5eead4" radius={[0, 8, 8, 0]} barSize={18} />
+              <Bar dataKey="count" fill="#5eead4" radius={[0, 8, 8, 0]} barSize={14} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="pro-chart-card">
-          <ChartHeader title="Crop Distribution" subtitle="Most scanned crops" />
+        <div className="dashboard-card confidence-chart-card">
+          <CardTitle title="Confidence Trend" subtitle="Latest 20 scans" />
 
-          <div className="donut-layout">
-            <ResponsiveContainer width="48%" height={230}>
-              <PieChart>
-                <Pie
-                  data={cropPieData}
-                  dataKey="count"
-                  innerRadius={58}
-                  outerRadius={86}
-                  paddingAngle={3}
-                >
-                  {cropPieData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={["#5eead4", "#60a5fa", "#a78bfa", "#84cc16"][index % 4]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-
-            <div className="donut-legend">
-              {cropPieData.map((item, index) => (
-                <div key={item.name} className="donut-legend-row">
-                  <span
-                    className="legend-dot"
-                    style={{
-                      background: ["#5eead4", "#60a5fa", "#a78bfa", "#84cc16"][index % 4]
-                    }}
-                  />
-                  <span>{item.name}</span>
-                  <strong>{item.percent}%</strong>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="pro-chart-card full-chart">
-          <ChartHeader title="Confidence Trend" subtitle="Confidence score across latest predictions" />
-
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={230}>
             <LineChart data={confidenceData}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.12} />
-              <XAxis dataKey="scan" tick={{ fill: "#94a3b8", fontSize: 12 }} />
-              <YAxis domain={[0, 100]} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+              <XAxis dataKey="scan" tick={{ fill: "#94a3b8", fontSize: 11 }} />
+              <YAxis domain={[0, 100]} tick={{ fill: "#94a3b8", fontSize: 11 }} />
               <Tooltip content={<CustomTooltip />} />
               <Line
                 type="monotone"
                 dataKey="confidence"
-                stroke="#5eead4"
+                stroke="#22c55e"
                 strokeWidth={3}
-                dot={{ r: 4, fill: "#0f172a", stroke: "#5eead4", strokeWidth: 2 }}
+                dot={{ r: 3, fill: "#07111f", stroke: "#5eead4", strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="pro-chart-card full-chart">
-          <ChartHeader title="Feedback Distribution" subtitle="Correct vs wrong feedback submitted by users" />
+        <div className="dashboard-card feedback-card">
+          <CardTitle title="Feedback Summary" subtitle="Correct vs wrong predictions" />
 
-          <div className="feedback-progress">
-            <div className="feedback-correct" style={{ width: `${feedbackAccuracy}%` }}>
-              Correct {correctFeedback}
+          <div className="feedback-donut-row">
+            <ResponsiveContainer width={150} height={150}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: "Correct", value: correctFeedback },
+                    { name: "Wrong", value: wrongFeedback }
+                  ]}
+                  dataKey="value"
+                  innerRadius={48}
+                  outerRadius={68}
+                  paddingAngle={4}
+                >
+                  <Cell fill="#22c55e" />
+                  <Cell fill="#ef4444" />
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+
+            <div className="feedback-score">
+              <h2>{feedbackAccuracy}%</h2>
+              <p>Accuracy</p>
             </div>
-            <div className="feedback-wrong">Wrong {wrongFeedback}</div>
           </div>
 
-          <div className="feedback-mini-stats">
-            <span><ThumbsUp size={16} /> Correct: {correctFeedback}</span>
-            <span><ThumbsDown size={16} /> Wrong: {wrongFeedback}</span>
+          <div className="feedback-list">
+            <span><ThumbsUp size={14} /> Correct {correctFeedback}</span>
+            <span><ThumbsDown size={14} /> Wrong {wrongFeedback}</span>
           </div>
         </div>
-      </div>
+
+        <div className="dashboard-card quick-actions-card">
+          <CardTitle title="Quick Actions" subtitle="Common workflows" />
+
+          <button className="quick-action-btn">
+            <Leaf size={16} />
+            Detect Disease
+          </button>
+
+          <button className="quick-action-btn">
+            <Eye size={16} />
+            View History
+          </button>
+
+          <button className="quick-action-btn">
+            <Download size={16} />
+            Generate Report
+          </button>
+
+          <button className="quick-action-btn">
+            <Server size={16} />
+            System Status
+          </button>
+        </div>
+      </section>
+
+      <section className="dashboard-bottom-grid">
+        <div className="dashboard-card">
+          <CardTitle title="Most Detected Disease" subtitle="Highest frequency" />
+          <h2 className="highlight-value">{analytics?.top_disease || "N/A"}</h2>
+          <p className="highlight-note">{analytics?.top_disease_count || 0} scans</p>
+        </div>
+
+        <div className="dashboard-card">
+          <CardTitle title="Most Scanned Crop" subtitle="Most uploaded crop" />
+          <h2 className="highlight-value">{analytics?.top_crop || "N/A"}</h2>
+          <p className="highlight-note">{analytics?.top_crop_count || 0} scans</p>
+        </div>
+
+        <div className="dashboard-card">
+          <CardTitle title="Crop Distribution" subtitle="Scan share by crop" />
+
+          <div className="mini-crop-list">
+            {cropPieData.map((item, index) => (
+              <div key={item.name}>
+                <span>{item.name}</span>
+                <strong>{item.percent}%</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
 
-function KpiCard({ icon, label, value }) {
+function DashboardKpi({ icon, title, value, note, variant }) {
   return (
-    <div className="pro-kpi-card">
-      <div className="kpi-icon">{icon}</div>
-      <div>
-        <span>{label}</span>
-        <h2>{value}</h2>
-      </div>
+    <div className={`dashboard-kpi-card ${variant}`}>
+      <div className="dashboard-kpi-icon">{icon}</div>
+      <p>{title}</p>
+      <h2>{value}</h2>
+      <span>{note}</span>
     </div>
   );
 }
 
-function ChartHeader({ title, subtitle }) {
+function CardTitle({ title, subtitle }) {
   return (
-    <div className="pro-chart-header">
+    <div className="dashboard-card-title">
       <div>
         <h3>{title}</h3>
         <p>{subtitle}</p>
