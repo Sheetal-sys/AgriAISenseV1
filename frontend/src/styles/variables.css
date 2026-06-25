@@ -1,0 +1,42 @@
+:root {
+  --primary: #22c55e;
+  --secondary: #14b8a6;
+  --accent: #84cc16;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+
+  --bg: #07111f;
+  --panel: #0b1628;
+  --panel-soft: #0f1d31;
+  --panel-deep: #050b16;
+  --border: rgba(148, 163, 184, 0.16);
+
+  --text: #f8fafc;
+  --muted: #94a3b8;
+
+  --sidebar-open: 260px;
+  --sidebar-closed: 76px;
+
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}

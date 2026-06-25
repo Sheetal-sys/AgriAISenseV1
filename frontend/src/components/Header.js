@@ -1,67 +1,89 @@
 import React, { useState } from "react";
-import { Bell, Settings, UserCircle, X } from "lucide-react";
+import {
+  Bell,
+  Settings,
+  UserCircle,
+  ChevronDown,
+  X
+} from "lucide-react";
+
 import NotificationsModal from "./modals/NotificationsModal";
 
-function Header() {
+function Header({ setActivePage }) {
   const [modal, setModal] = useState(null);
 
   return (
     <>
-      <div className="floating-actions">
-        <button className="icon-btn" onClick={() => setModal("notifications")}>
-          <Bell size={20} />
-        </button>
+      <header className="app-header">
 
-        <button className="icon-btn" onClick={() => setModal("settings")}>
-          <Settings size={20} />
-        </button>
+        <div className="header-right">
 
-        <button className="profile-btn" onClick={() => setModal("profile")}>
-          <UserCircle size={22} />
-          <span>Rajesh</span>
-        </button>
-      </div>
-
-      {modal && (
-        <div className="modal-backdrop">
-          <div className="modal-card">
-            <button className="modal-close" onClick={() => setModal(null)}>
-              <X size={18} />
+          <div className="notification-wrapper">
+            <button
+              className="icon-btn"
+              onClick={() => setModal("notifications")}
+            >
+              <Bell size={20}/>
             </button>
 
-            {modal === "notifications" && <NotificationsModal />}
+            <span className="notification-dot"></span>
 
-            {modal === "settings" && (
-              <>
-                <h2>Settings</h2>
-                <label>
-                  Theme
-                  <select>
-                    <option>Dark AgriAI Theme</option>
-                    <option>Light Theme</option>
-                  </select>
-                </label>
-                <label>
-                  Language
-                  <select>
-                    <option>English</option>
-                    <option>Hindi</option>
-                  </select>
-                </label>
-              </>
-            )}
-
-            {modal === "profile" && (
-              <>
-                <h2>User Profile</h2>
-                <p><strong>Name:</strong> Rajesh</p>
-                <p><strong>Role:</strong> Farmer / AgriAI User</p>
-                <p><strong>Active Module:</strong> Disease Detection</p>
-              </>
-            )}
           </div>
+
+          <button
+            className="icon-btn"
+            onClick={() => setActivePage("settings")}
+          >
+            <Settings size={20}/>
+          </button>
+
+          <button
+            className="profile-btn"
+            onClick={() => setActivePage("profile")}
+          >
+            <UserCircle size={24}/>
+
+            <div>
+
+              <div className="profile-name">
+                Rajesh
+              </div>
+
+              <div className="profile-role">
+                Farmer
+              </div>
+
+            </div>
+
+            <ChevronDown size={16}/>
+
+          </button>
+
         </div>
+
+      </header>
+
+      {modal && (
+
+        <div className="modal-backdrop">
+
+          <div className="modal-card">
+
+            <button
+              className="modal-close"
+              onClick={() => setModal(null)}
+            >
+              <X size={18}/>
+            </button>
+
+            <NotificationsModal/>
+
+          </div>
+
+        </div>
+
       )}
+
     </>
   );
 }

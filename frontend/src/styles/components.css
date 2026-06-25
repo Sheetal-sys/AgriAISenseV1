@@ -1,0 +1,54 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+}
+
+.modal-card {
+  width: 460px;
+  max-width: calc(100vw - 32px);
+  padding: 28px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #111b31, #0b1628);
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+  position: relative;
+}
+
+.modal-card h2 {
+  margin: 0 0 20px;
+  color: #5eead4;
+  font-size: 26px;
+}
+
+.modal-card p {
+  margin: 14px 0;
+  color: #dbeafe;
+  font-size: 15px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.14);
+  color: white;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.placeholder-page {
+  padding: 28px;
+  border-radius: 22px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
