@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   Activity,
   Download,
@@ -84,7 +85,7 @@ function History() {
       );
     } catch (error) {
       console.error("Feedback failed", error);
-      alert("Unable to submit feedback.");
+      toast.error("Unable to submit feedback.");
     } finally {
       setFeedbackLoadingId(null);
     }
@@ -112,7 +113,7 @@ function History() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Report download failed", error);
-      alert("Unable to download report.");
+      toast.error("Unable to download report.");
     } finally {
       setReportLoadingId(null);
     }

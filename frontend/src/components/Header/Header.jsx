@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { Bell, ChevronDown, LogOut, Search } from "lucide-react";
 
 import useAuth from "../../hooks/useAuth";
@@ -58,12 +59,13 @@ function Header() {
       navigate(match.path);
       setSearchText("");
     } else {
-      alert("No matching page found.");
+      toast.error("No matching page found.");
     }
   };
 
   const handleLogout = () => {
     logout();
+    toast.success("Logged out successfully.");
     setMenuOpen(false);
     navigate("/login");
   };
