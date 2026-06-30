@@ -25,8 +25,21 @@ predictions_collection = db[MONGO_COLLECTION_NAME]
 feedback_collection = db["feedback"]
 
 
-def save_prediction(image_path, result):
+def serialize_prediction(record):
+    record["_id"] = str(record["_id"])
+
+    if record.get("created_at"):
+        record["created_at"] = record["created_at"].isoformat()
+
+    if record.get("feedback_created_at"):
+        record["feedback_created_at"] = record["feedback_created_at"].isoformat()
+
+    return record
+
+
+def save_prediction(image_path, result, user_id):
     document = {
+        "user_id": user_id,
         "image_path": str(image_path),
         "crop": result.get("crop"),
         "disease": result.get("disease"),
@@ -54,7 +67,7 @@ def save_prediction(image_path, result):
     return str(inserted.inserted_id)
 
 
-def update_prediction_feedback(prediction_id, feedback):
+def update_prediction_feedback(prediction_id, feedback, user_id=None):
     if feedback not in ["correct", "wrong"]:
         return None
 
@@ -63,7 +76,11 @@ def update_prediction_feedback(prediction_id, feedback):
     except Exception:
         return None
 
-    prediction = predictions_collection.find_one({"_id": object_id})
+    query = {"_id": object_id}
+    if user_id:
+        query["user_id"] = user_id
+
+    prediction = predictions_collection.find_one(query)
 
     if not prediction:
         return None
@@ -71,7 +88,7 @@ def update_prediction_feedback(prediction_id, feedback):
     feedback_time = datetime.now(timezone.utc)
 
     predictions_collection.update_one(
-        {"_id": object_id},
+        query,
         {
             "$set": {
                 "feedback": feedback,
@@ -82,6 +99,7 @@ def update_prediction_feedback(prediction_id, feedback):
 
     feedback_document = {
         "prediction_id": prediction_id,
+        "user_id": prediction.get("user_id"),
         "crop": prediction.get("crop"),
         "predicted_disease": prediction.get("disease"),
         "class_name": prediction.get("class_name"),
@@ -96,7 +114,10 @@ def update_prediction_feedback(prediction_id, feedback):
     }
 
     feedback_collection.update_one(
-        {"prediction_id": prediction_id},
+        {
+            "prediction_id": prediction_id,
+            "user_id": prediction.get("user_id")
+        },
         {"$set": feedback_document},
         upsert=True
     )
@@ -108,47 +129,89 @@ def update_prediction_feedback(prediction_id, feedback):
     }
 
 
-def get_prediction_history(page=1, limit=10):
+def get_prediction_history(
+    user_id,
+    page=1,
+    limit=10,
+    search="",
+    crop="",
+    status="",
+    severity="",
+    sort="-created_at"
+):
     page = max(page, 1)
     limit = min(max(limit, 1), 50)
     skip = (page - 1) * limit
 
-    total = predictions_collection.count_documents({})
+    query = {
+        "user_id": user_id
+    }
+
+    if search:
+        query["$or"] = [
+            {"crop": {"$regex": search, "$options": "i"}},
+            {"disease": {"$regex": search, "$options": "i"}},
+            {"class_name": {"$regex": search, "$options": "i"}},
+            {"status": {"$regex": search, "$options": "i"}},
+            {"severity": {"$regex": search, "$options": "i"}},
+        ]
+
+    if crop:
+        query["crop"] = {"$regex": f"^{crop}$", "$options": "i"}
+
+    if status:
+        query["status"] = {"$regex": f"^{status}$", "$options": "i"}
+
+    if severity:
+        query["severity"] = {"$regex": severity, "$options": "i"}
+
+    sort_field = "created_at"
+    sort_direction = -1
+
+    if sort == "created_at":
+        sort_direction = 1
+    elif sort == "-confidence":
+        sort_field = "confidence"
+        sort_direction = -1
+    elif sort == "confidence":
+        sort_field = "confidence"
+        sort_direction = 1
+
+    total = predictions_collection.count_documents(query)
 
     records = (
         predictions_collection
-        .find()
-        .sort("created_at", -1)
+        .find(query)
+        .sort(sort_field, sort_direction)
         .skip(skip)
         .limit(limit)
     )
 
-    items = []
-
-    for record in records:
-        record["_id"] = str(record["_id"])
-
-        if record.get("created_at"):
-            record["created_at"] = record["created_at"].isoformat()
-
-        if record.get("feedback_created_at"):
-            record["feedback_created_at"] = record["feedback_created_at"].isoformat()
-
-        items.append(record)
+    items = [serialize_prediction(record) for record in records]
 
     return {
         "items": items,
         "page": page,
         "limit": limit,
         "total": total,
-        "has_more": page * limit < total
+        "has_more": page * limit < total,
+        "filters": {
+            "search": search,
+            "crop": crop,
+            "status": status,
+            "severity": severity,
+            "sort": sort
+        }
     }
 
 
-def get_dashboard_analytics():
-    total_scans = predictions_collection.count_documents({})
+def get_dashboard_analytics(user_id=None):
+    query = {"user_id": user_id} if user_id else {}
+
+    total_scans = predictions_collection.count_documents(query)
 
     healthy_leaves = predictions_collection.count_documents({
+        **query,
         "disease": {"$regex": "healthy", "$options": "i"}
     })
 
@@ -156,6 +219,7 @@ def get_dashboard_analytics():
 
     avg_confidence_result = list(
         predictions_collection.aggregate([
+            {"$match": query},
             {
                 "$group": {
                     "_id": None,
@@ -176,6 +240,7 @@ def get_dashboard_analytics():
         predictions_collection.aggregate([
             {
                 "$match": {
+                    **query,
                     "disease": {
                         "$not": {"$regex": "healthy", "$options": "i"}
                     }
@@ -194,6 +259,7 @@ def get_dashboard_analytics():
 
     top_crop_result = list(
         predictions_collection.aggregate([
+            {"$match": query},
             {
                 "$group": {
                     "_id": "$crop",
@@ -206,10 +272,12 @@ def get_dashboard_analytics():
     )
 
     feedback_correct = predictions_collection.count_documents({
+        **query,
         "feedback": "correct"
     })
 
     feedback_wrong = predictions_collection.count_documents({
+        **query,
         "feedback": "wrong"
     })
 
@@ -227,9 +295,12 @@ def get_dashboard_analytics():
     }
 
 
-def get_dashboard_charts():
+def get_dashboard_charts(user_id=None):
+    query = {"user_id": user_id} if user_id else {}
+
     disease_distribution = list(
         predictions_collection.aggregate([
+            {"$match": query},
             {
                 "$group": {
                     "_id": "$disease",
@@ -243,6 +314,7 @@ def get_dashboard_charts():
 
     crop_distribution = list(
         predictions_collection.aggregate([
+            {"$match": query},
             {
                 "$group": {
                     "_id": "$crop",
@@ -256,7 +328,7 @@ def get_dashboard_charts():
 
     confidence_trend_records = list(
         predictions_collection
-        .find({}, {"confidence": 1, "created_at": 1, "disease": 1})
+        .find(query, {"confidence": 1, "created_at": 1, "disease": 1})
         .sort("created_at", -1)
         .limit(20)
     )
@@ -275,11 +347,17 @@ def get_dashboard_charts():
     feedback_distribution = [
         {
             "name": "Correct",
-            "count": predictions_collection.count_documents({"feedback": "correct"})
+            "count": predictions_collection.count_documents({
+                **query,
+                "feedback": "correct"
+            })
         },
         {
             "name": "Wrong",
-            "count": predictions_collection.count_documents({"feedback": "wrong"})
+            "count": predictions_collection.count_documents({
+                **query,
+                "feedback": "wrong"
+            })
         }
     ]
 
@@ -302,24 +380,14 @@ def get_dashboard_charts():
         "feedback_distribution": feedback_distribution
     }
 
-def serialize_prediction(record):
-    record["_id"] = str(record["_id"])
 
-    if record.get("created_at"):
-        record["created_at"] = record["created_at"].isoformat()
-
-    if record.get("feedback_created_at"):
-        record["feedback_created_at"] = record["feedback_created_at"].isoformat()
-
-    return record
-
-
-def get_recent_predictions(limit=5):
+def get_recent_predictions(user_id=None, limit=5):
     limit = min(max(limit, 1), 20)
+    query = {"user_id": user_id} if user_id else {}
 
     records = (
         predictions_collection
-        .find()
+        .find(query)
         .sort("created_at", -1)
         .limit(limit)
     )
@@ -327,38 +395,39 @@ def get_recent_predictions(limit=5):
     return [serialize_prediction(record) for record in records]
 
 
-def get_history_summary():
-    analytics = get_dashboard_analytics()
-
-    total = analytics.get("total_scans", 0)
-    healthy = analytics.get("healthy_leaves", 0)
-    diseased = analytics.get("diseased_leaves", 0)
+def get_history_summary(user_id=None):
+    query = {"user_id": user_id} if user_id else {}
+    analytics = get_dashboard_analytics(user_id=user_id)
 
     uncertain = predictions_collection.count_documents({
+        **query,
         "status": "uncertain"
     })
 
     poor_quality = predictions_collection.count_documents({
+        **query,
         "status": "poor_quality"
     })
 
     return {
-        "total_predictions": total,
-        "healthy": healthy,
-        "diseased": diseased,
+        "total_predictions": analytics.get("total_scans", 0),
+        "healthy": analytics.get("healthy_leaves", 0),
+        "diseased": analytics.get("diseased_leaves", 0),
         "uncertain": uncertain,
         "poor_quality": poor_quality,
         "average_confidence": analytics.get("average_confidence", 0)
     }
 
 
-def get_top_diseases(limit=5):
+def get_top_diseases(user_id=None, limit=5):
     limit = min(max(limit, 1), 10)
+    query = {"user_id": user_id} if user_id else {}
 
     records = list(
         predictions_collection.aggregate([
             {
                 "$match": {
+                    **query,
                     "disease": {
                         "$not": {"$regex": "healthy", "$options": "i"}
                     }
@@ -390,12 +459,12 @@ def get_top_diseases(limit=5):
     ]
 
 
-def get_dashboard_full_data():
-    analytics = get_dashboard_analytics()
-    charts = get_dashboard_charts()
-    recent_predictions = get_recent_predictions(limit=5)
-    history_summary = get_history_summary()
-    top_diseases = get_top_diseases(limit=5)
+def get_dashboard_full_data(user_id=None):
+    analytics = get_dashboard_analytics(user_id=user_id)
+    charts = get_dashboard_charts(user_id=user_id)
+    recent_predictions = get_recent_predictions(user_id=user_id, limit=5)
+    history_summary = get_history_summary(user_id=user_id)
+    top_diseases = get_top_diseases(user_id=user_id, limit=5)
 
     return {
         "analytics": analytics,

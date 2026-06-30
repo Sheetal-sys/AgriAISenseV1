@@ -1,9 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Activity,
-  Calendar,
   Download,
-  Leaf,
   Search,
   ShieldCheck,
   ThumbsDown,
@@ -15,75 +13,50 @@ import { submitFeedback } from "../../services/feedbackService";
 import { generateReport } from "../../services/reportService";
 
 function History() {
-  const [history, setHistory] = useState([]);
+  const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [searchText, setSearchText] = useState("");
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [totalRecords, setTotalRecords] = useState(0);
   const [feedbackLoadingId, setFeedbackLoadingId] = useState(null);
   const [reportLoadingId, setReportLoadingId] = useState(null);
 
-  const loadHistory = async (pageNumber = 1, append = false) => {
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 10,
+    search: "",
+    status: "",
+    severity: "",
+    sort: "-created_at",
+  });
+
+  const [totalRecords, setTotalRecords] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(totalRecords / filters.limit));
+
+  const loadHistory = async () => {
     try {
-      append ? setLoadingMore(true) : setLoading(true);
-
-      const data = await getHistory(pageNumber, 10);
-      const items = data.items || [];
-
-      setHistory((previous) => (append ? [...previous, ...items] : items));
-      setHasMore(Boolean(data.has_more));
+      setLoading(true);
+      const data = await getHistory(filters);
+      setRecords(data.items || []);
       setTotalRecords(data.total || 0);
-      setPage(data.page || pageNumber);
     } catch (error) {
       console.error("History fetch failed", error);
-      if (!append) setHistory([]);
+      setRecords([]);
+      setTotalRecords(0);
     } finally {
       setLoading(false);
-      setLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    loadHistory(1, false);
-  }, []);
+    loadHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
-  const summary = useMemo(() => {
-    const total = history.length;
-
-    const healthy = history.filter((item) =>
-      item.disease?.toLowerCase().includes("healthy")
-    ).length;
-
-    const diseased = total - healthy;
-
-    const avgConfidence =
-      total > 0
-        ? (
-            history.reduce((sum, item) => sum + Number(item.confidence || 0), 0) /
-            total
-          ).toFixed(2)
-        : 0;
-
-    return {
-      total,
-      healthy,
-      diseased,
-      avgConfidence,
-    };
-  }, [history]);
-
-  const filteredHistory = history.filter((item) => {
-    const keyword = searchText.toLowerCase();
-
-    return (
-      item.crop?.toLowerCase().includes(keyword) ||
-      item.disease?.toLowerCase().includes(keyword) ||
-      item.status?.toLowerCase().includes(keyword) ||
-      item.severity?.toLowerCase().includes(keyword)
-    );
-  });
+  const updateFilter = (field, value) => {
+    setFilters((previous) => ({
+      ...previous,
+      [field]: value,
+      page: field === "page" ? value : 1,
+    }));
+  };
 
   const formatDate = (value) => {
     if (!value) return "N/A";
@@ -102,7 +75,7 @@ function History() {
       setFeedbackLoadingId(item._id);
       await submitFeedback(item._id, feedbackValue);
 
-      setHistory((previous) =>
+      setRecords((previous) =>
         previous.map((record) =>
           record._id === item._id
             ? { ...record, feedback: feedbackValue }
@@ -145,191 +118,175 @@ function History() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="placeholder-page">
-        <h1>Loading History...</h1>
-        <p>Fetching prediction records from backend.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="history-page premium-history-page">
+    <div className="history-page enterprise-history-page">
       <section className="history-hero">
         <div>
           <p className="eyebrow">SCAN RECORDS</p>
           <h1>Prediction History</h1>
           <p>
-            Review saved crop disease scans, confidence levels, feedback and downloadable AI reports.
+            Search, filter and manage crop disease predictions with feedback and report downloads.
           </p>
         </div>
 
         <div className="history-total-pill">
-          {totalRecords} Total Records
+          {totalRecords} Records
         </div>
       </section>
 
-      <section className="history-summary-grid">
-        <SummaryCard
-          icon={<Activity size={20} />}
-          label="Loaded Scans"
-          value={summary.total}
-          note={`Showing ${summary.total} of ${totalRecords}`}
-        />
-
-        <SummaryCard
-          icon={<Leaf size={20} />}
-          label="Healthy Leaves"
-          value={summary.healthy}
-          note="Healthy samples"
-        />
-
-        <SummaryCard
-          icon={<ShieldCheck size={20} />}
-          label="Diseased Leaves"
-          value={summary.diseased}
-          note="Requires attention"
-        />
-
-        <SummaryCard
-          icon={<Activity size={20} />}
-          label="Avg Confidence"
-          value={`${summary.avgConfidence}%`}
-          note="Prediction reliability"
-        />
-      </section>
-
-      <section className="history-toolbar">
+      <section className="history-control-panel">
         <div className="history-search">
           <Search size={18} />
           <input
             type="text"
-            placeholder="Search by crop, disease, status or severity..."
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
+            placeholder="Search crop, disease, class, status..."
+            value={filters.search}
+            onChange={(event) => updateFilter("search", event.target.value)}
           />
         </div>
+
+        <select
+          value={filters.status}
+          onChange={(event) => updateFilter("status", event.target.value)}
+        >
+          <option value="">All Status</option>
+          <option value="success">Success</option>
+          <option value="uncertain">Uncertain</option>
+          <option value="poor_quality">Poor Quality</option>
+        </select>
+
+        <select
+          value={filters.severity}
+          onChange={(event) => updateFilter("severity", event.target.value)}
+        >
+          <option value="">All Severity</option>
+          <option value="None">None</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          <option value="Very High">Very High</option>
+        </select>
+
+        <select
+          value={filters.sort}
+          onChange={(event) => updateFilter("sort", event.target.value)}
+        >
+          <option value="-created_at">Newest First</option>
+          <option value="created_at">Oldest First</option>
+          <option value="-confidence">Confidence High</option>
+          <option value="confidence">Confidence Low</option>
+        </select>
       </section>
 
-      {history.length === 0 ? (
-        <div className="placeholder-page">
-          <h2>No predictions found</h2>
-          <p>Run a disease scan first. Saved predictions will appear here.</p>
+      <section className="history-table-card">
+        <div className="history-table-header">
+          <span>Crop</span>
+          <span>Disease</span>
+          <span>Status</span>
+          <span>Confidence</span>
+          <span>Severity</span>
+          <span>Date</span>
+          <span>Actions</span>
         </div>
-      ) : filteredHistory.length === 0 ? (
-        <div className="placeholder-page">
-          <h2>No matching scans</h2>
-          <p>Try searching with another crop, disease or status.</p>
-        </div>
-      ) : (
-        <section className="history-records-list">
-          {filteredHistory.map((item) => (
-            <article className="history-record-card" key={item._id}>
-              <div className="record-left">
-                <div className={`record-status-dot ${item.status || "unknown"}`} />
 
-                <div>
-                  <div className="record-title-row">
-                    <h2>{item.disease || "Unknown Disease"}</h2>
-                    <span className={`record-status ${item.status || "unknown"}`}>
-                      {item.status || "unknown"}
-                    </span>
-                  </div>
+        {loading ? (
+          <div className="history-empty-row">
+            <Activity size={22} />
+            Loading prediction records...
+          </div>
+        ) : records.length === 0 ? (
+          <div className="history-empty-row">
+            No prediction records found.
+          </div>
+        ) : (
+          records.map((item) => (
+            <div className="history-table-row" key={item._id}>
+              <div className="history-crop-cell">
+                <div className="crop-avatar">
+                  {(item.crop || "A").charAt(0)}
+                </div>
+                <strong>{item.crop || "N/A"}</strong>
+              </div>
 
-                  <p>{item.class_name || "N/A"}</p>
+              <div>
+                <strong>{item.disease || "Unknown"}</strong>
+                <small>{item.class_name || "N/A"}</small>
+              </div>
 
-                  <div className="record-meta-row">
-                    <span>
-                      <Leaf size={14} />
-                      {item.crop || "N/A"}
-                    </span>
+              <div>
+                <span className={`status-badge ${item.status || "unknown"}`}>
+                  {item.status || "unknown"}
+                </span>
+              </div>
 
-                    <span>
-                      <Calendar size={14} />
-                      {formatDate(item.created_at)}
-                    </span>
-
-                    <span>
-                      Severity: {item.severity || "Unknown"}
-                    </span>
-                  </div>
-
-                  <div className="record-treatment">
-                    {item.treatment
-                      ? `${item.treatment.substring(0, 150)}...`
-                      : "No treatment recommendation available."}
-                  </div>
+              <div className="confidence-cell">
+                <strong>{item.confidence || 0}%</strong>
+                <div className="mini-confidence-bar">
+                  <div style={{ width: `${item.confidence || 0}%` }} />
                 </div>
               </div>
 
-              <div className="record-right">
-                <div className="record-confidence">
-                  <strong>{item.confidence || 0}%</strong>
-                  <span>{item.confidence_level || "N/A"}</span>
-                  <div className="confidence-bar">
-                    <div style={{ width: `${item.confidence || 0}%` }} />
-                  </div>
-                </div>
+              <div>
+                <span className="severity-badge-table">
+                  {item.severity || "Unknown"}
+                </span>
+              </div>
 
-                <div className="record-actions">
-                  <button
-                    onClick={() => handleFeedbackSubmit(item, "correct")}
-                    disabled={Boolean(item.feedback) || feedbackLoadingId === item._id}
-                  >
-                    <ThumbsUp size={14} />
-                    Correct
-                  </button>
+              <div className="date-cell">
+                {formatDate(item.created_at)}
+              </div>
 
-                  <button
-                    onClick={() => handleFeedbackSubmit(item, "wrong")}
-                    disabled={Boolean(item.feedback) || feedbackLoadingId === item._id}
-                  >
-                    <ThumbsDown size={14} />
-                    Wrong
-                  </button>
-                </div>
-
-                {item.feedback && (
-                  <small className="feedback-saved">
-                    Feedback saved: {item.feedback}
-                  </small>
-                )}
+              <div className="table-actions">
+                <button
+                  title="Mark correct"
+                  onClick={() => handleFeedbackSubmit(item, "correct")}
+                  disabled={Boolean(item.feedback) || feedbackLoadingId === item._id}
+                >
+                  <ThumbsUp size={14} />
+                </button>
 
                 <button
-                  className="history-report-btn"
+                  title="Mark wrong"
+                  onClick={() => handleFeedbackSubmit(item, "wrong")}
+                  disabled={Boolean(item.feedback) || feedbackLoadingId === item._id}
+                >
+                  <ThumbsDown size={14} />
+                </button>
+
+                <button
+                  title="Download report"
                   onClick={() => downloadReport(item)}
                   disabled={reportLoadingId === item._id}
                 >
-                  <Download size={15} />
-                  {reportLoadingId === item._id ? "Generating..." : "Download Report"}
+                  <Download size={14} />
                 </button>
               </div>
-            </article>
-          ))}
-        </section>
-      )}
+            </div>
+          ))
+        )}
+      </section>
 
-      {hasMore && (
-        <button
-          className="history-load-more-btn"
-          onClick={() => loadHistory(page + 1, true)}
-          disabled={loadingMore}
-        >
-          {loadingMore ? "Loading More..." : "Load More Scans"}
-        </button>
-      )}
-    </div>
-  );
-}
+      <section className="history-pagination">
+        <span>
+          Page {filters.page} of {totalPages}
+        </span>
 
-function SummaryCard({ icon, label, value, note }) {
-  return (
-    <div className="history-summary-card">
-      <div className="history-summary-icon">{icon}</div>
-      <span>{label}</span>
-      <h2>{value}</h2>
-      <p>{note}</p>
+        <div>
+          <button
+            disabled={filters.page <= 1}
+            onClick={() => updateFilter("page", filters.page - 1)}
+          >
+            Previous
+          </button>
+
+          <button
+            disabled={filters.page >= totalPages}
+            onClick={() => updateFilter("page", filters.page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

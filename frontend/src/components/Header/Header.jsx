@@ -1,23 +1,49 @@
-import React, { useState } from "react";
-import { Bell, ChevronDown, Search, Settings } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Bell, ChevronDown, LogOut, Search } from "lucide-react";
 
-function Header({ setActivePage }) {
+import useAuth from "../../hooks/useAuth";
+
+function Header() {
+  const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
+
   const [searchText, setSearchText] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const menuRef = useRef(null);
+
+  const notificationCount = 0;
 
   const pages = [
-    { keyword: "dashboard", page: "home" },
-    { keyword: "home", page: "home" },
-    { keyword: "disease", page: "disease" },
-    { keyword: "detect", page: "disease" },
-    { keyword: "scan", page: "disease" },
-    { keyword: "history", page: "history" },
-    { keyword: "prediction", page: "history" },
-    { keyword: "profile", page: "profile" },
-    { keyword: "user", page: "profile" },
-    { keyword: "settings", page: "settings" },
-    { keyword: "notification", page: "notifications" },
-    { keyword: "alerts", page: "notifications" },
+    { keyword: "dashboard", path: "/dashboard" },
+    { keyword: "home", path: "/dashboard" },
+    { keyword: "disease", path: "/disease" },
+    { keyword: "detect", path: "/disease" },
+    { keyword: "scan", path: "/disease" },
+    { keyword: "history", path: "/history" },
+    { keyword: "prediction", path: "/history" },
+    { keyword: "profile", path: "/profile" },
+    { keyword: "user", path: "/profile" },
+    { keyword: "settings", path: "/settings" },
+    { keyword: "notification", path: "/notifications" },
+    { keyword: "notifications", path: "/notifications" },
+    { keyword: "alerts", path: "/notifications" },
   ];
+
+  useEffect(() => {
+    const closeMenu = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", closeMenu);
+
+    return () => {
+      document.removeEventListener("mousedown", closeMenu);
+    };
+  }, []);
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
@@ -29,17 +55,33 @@ function Header({ setActivePage }) {
     const match = pages.find((item) => query.includes(item.keyword));
 
     if (match) {
-      setActivePage(match.page);
+      navigate(match.path);
       setSearchText("");
     } else {
       alert("No matching page found.");
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    navigate("/login");
+  };
+
+  const initials = currentUser?.name
+    ? currentUser.name
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "U";
+
   return (
     <header className="app-header premium-header">
       <form className="header-search" onSubmit={handleSearchSubmit}>
         <Search size={18} />
+
         <input
           type="text"
           placeholder="Search dashboard, disease, history..."
@@ -51,34 +93,46 @@ function Header({ setActivePage }) {
       <div className="header-right">
         <button
           className="header-icon-btn"
-          onClick={() => setActivePage("notifications")}
+          onClick={() => navigate("/notifications")}
           title="Notifications"
         >
           <Bell size={19} />
-          <span className="notification-badge">3</span>
+
+          {notificationCount > 0 && (
+            <span className="notification-badge">{notificationCount}</span>
+          )}
         </button>
 
-        <button
-          className="header-icon-btn"
-          onClick={() => setActivePage("settings")}
-          title="Settings"
-        >
-          <Settings size={19} />
-        </button>
+        <div className="header-profile-wrapper" ref={menuRef}>
+          <button
+            className="header-profile-btn"
+            type="button"
+            onClick={() => setMenuOpen((previous) => !previous)}
+          >
+            <div className="header-avatar">{initials}</div>
 
-        <button
-          className="header-profile-btn"
-          onClick={() => setActivePage("profile")}
-        >
-          <div className="header-avatar">RK</div>
+            <div className="header-user-text">
+              <strong>{currentUser?.name || "User"}</strong>
+              <span>{currentUser?.role || "AgriAI User"}</span>
+            </div>
 
-          <div className="header-user-text">
-            <strong>Rajesh Kumar</strong>
-            <span>Farmer / AgriAI User</span>
-          </div>
+            <ChevronDown size={16} />
+          </button>
 
-          <ChevronDown size={16} />
-        </button>
+          {menuOpen && (
+            <div className="profile-dropdown">
+              <div className="profile-dropdown-user">
+                <strong>{currentUser?.name || "User"}</strong>
+                <span>{currentUser?.email || "user@agriai.com"}</span>
+              </div>
+
+              <button className="logout-menu-btn" onClick={handleLogout}>
+                <LogOut size={16} />
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

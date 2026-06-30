@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
-function Landing({ setActivePage }) {
+function Landing() {
+  const navigate = useNavigate();
+
   return (
     <div className="landing-page">
       <header className="landing-header">
@@ -16,7 +19,7 @@ function Landing({ setActivePage }) {
           <a href="#features">Features</a>
           <a href="#about">About</a>
           <a href="#policies">Policies</a>
-          <button onClick={() => setActivePage("home")}>Open App</button>
+          <button onClick={() => navigate("/login")}>Login</button>
         </nav>
       </header>
 
@@ -29,11 +32,11 @@ function Landing({ setActivePage }) {
         </p>
 
         <div className="landing-actions">
-          <button onClick={() => setActivePage("disease")}>
-            Start Disease Detection
+          <button onClick={() => navigate("/register")}>
+            Create Free Account
           </button>
-          <button className="secondary-btn" onClick={() => setActivePage("home")}>
-            View Dashboard
+          <button className="secondary-btn" onClick={() => navigate("/login")}>
+            Login to Dashboard
           </button>
         </div>
       </section>

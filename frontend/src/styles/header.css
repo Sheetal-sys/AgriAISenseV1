@@ -1,3 +1,7 @@
+/* =====================================================
+   HEADER
+===================================================== */
+
 .app-header {
   height: 70px;
   padding: 0 24px;
@@ -10,6 +14,10 @@
   gap: 18px;
   flex-shrink: 0;
 }
+
+/* =====================================================
+   SEARCH
+===================================================== */
 
 .header-search {
   flex: 1;
@@ -38,11 +46,19 @@
   color: #64748b;
 }
 
+/* =====================================================
+   RIGHT SECTION
+===================================================== */
+
 .header-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
+
+/* =====================================================
+   ICON BUTTONS
+===================================================== */
 
 .header-icon-btn {
   position: relative;
@@ -55,14 +71,18 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .header-icon-btn:hover {
   background: rgba(20, 184, 166, 0.14);
   border-color: rgba(45, 212, 191, 0.35);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
+
+/* =====================================================
+   NOTIFICATION BADGE
+===================================================== */
 
 .notification-badge {
   position: absolute;
@@ -81,6 +101,14 @@
   border: 2px solid var(--bg);
 }
 
+/* =====================================================
+   PROFILE
+===================================================== */
+
+.header-profile-wrapper {
+  position: relative;
+}
+
 .header-profile-btn {
   height: 44px;
   border-radius: 16px;
@@ -92,7 +120,7 @@
   gap: 10px;
   padding: 0 12px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .header-profile-btn:hover {
@@ -101,10 +129,14 @@
 }
 
 .header-avatar {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--secondary), var(--accent));
+  background: linear-gradient(
+    135deg,
+    var(--secondary),
+    var(--accent)
+  );
   color: #031014;
   display: grid;
   place-items: center;
@@ -127,16 +159,111 @@
 
 .header-user-text {
   text-align: left;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .header-user-text strong {
   display: block;
   font-size: 13px;
+  font-weight: 700;
 }
 
 .header-user-text span {
+  display: block;
+  margin-top: 2px;
   color: var(--muted);
   font-size: 11px;
 }
 
+/* =====================================================
+   PROFILE DROPDOWN
+===================================================== */
+
+.profile-dropdown {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  width: 260px;
+  border-radius: 18px;
+  padding: 14px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(20, 184, 166, 0.08),
+      transparent 45%
+    ),
+    rgba(15, 23, 42, 0.96);
+
+  border: 1px solid rgba(45, 212, 191, 0.22);
+
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.45);
+
+  z-index: 999;
+  animation: dropdownFade 0.18s ease;
+}
+
+.profile-dropdown-user {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.42);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.profile-dropdown-user strong {
+  display: block;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.profile-dropdown-user span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  word-break: break-word;
+}
+
+/* =====================================================
+   LOGOUT BUTTON
+===================================================== */
+
+.logout-menu-btn {
+  width: 100%;
+  height: 42px;
+  border: none;
+  border-radius: 13px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.logout-menu-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  transform: translateY(-1px);
+}
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

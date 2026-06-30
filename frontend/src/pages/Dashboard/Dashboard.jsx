@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 import {
   Activity,
   Bot,
@@ -29,7 +31,9 @@ import {
 import { getFullDashboard } from "../../services/dashboardService";
 import StatCard from "../../components/Cards/StatCard";
 
-function Dashboard({ setActivePage }) {
+function Dashboard() {
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -67,7 +71,7 @@ function Dashboard({ setActivePage }) {
       <section className="dashboard-hero">
         <div>
           <p className="eyebrow">AGRI INTELLIGENCE CENTER</p>
-          <h1>Good Evening, Rajesh 👋</h1>
+          <h1> Hi , {currentUser?.name || "User"} 👋</h1>
           <p>
             Monitor crop health, disease scans, AI prediction confidence and advisory performance.
           </p>
@@ -80,7 +84,7 @@ function Dashboard({ setActivePage }) {
       </section>
 
       <section className="module-launch-grid">
-        <button className="module-launch-card active" onClick={() => setActivePage("disease")}>
+        <button className="module-launch-card active" onClick={() => navigate("/disease")}>
           <Leaf size={24} />
           <h3>Disease Detection</h3>
           <p>Upload leaf image and get AI diagnosis.</p>
@@ -161,8 +165,8 @@ function Dashboard({ setActivePage }) {
         <div className="dashboard-card quick-actions-card">
           <CardTitle title="Quick Actions" subtitle="Common workflows" />
 
-          <button onClick={() => setActivePage("disease")}><Leaf size={16} /> Detect Disease</button>
-          <button onClick={() => setActivePage("history")}><Eye size={16} /> View History</button>
+          <button onClick={() => navigate("/disease")}><Leaf size={16} /> Detect Disease</button>
+          <button onClick={() => navigate("/history")}><Eye size={16} /> View History</button>
           <button><FileText size={16} /> Export Reports</button>
           <button><Sparkles size={16} /> AI Insights</button>
         </div>

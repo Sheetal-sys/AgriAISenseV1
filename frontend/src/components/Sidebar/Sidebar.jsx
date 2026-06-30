@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   Leaf,
@@ -14,14 +15,18 @@ import {
   Cloud
 } from "lucide-react";
 
-function Sidebar({ activePage, setActivePage, collapsed, setCollapsed }) {
-  const NavItem = ({ page, icon, label, disabled = false }) => (
+function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const NavItem = ({ path, icon, label, disabled = false }) => (
     <button
       className={[
-        activePage === page ? "nav-item active" : "nav-item",
+        location.pathname === path ? "nav-item active" : "nav-item",
         disabled ? "disabled" : ""
       ].join(" ")}
-      onClick={() => !disabled && setActivePage(page)}
+      onClick={() => !disabled && navigate(path)}
       title={collapsed ? label : ""}
     >
       {icon}
@@ -33,7 +38,7 @@ function Sidebar({ activePage, setActivePage, collapsed, setCollapsed }) {
   return (
     <aside className={collapsed ? "pro-sidebar collapsed" : "pro-sidebar"}>
       <div className="sidebar-top-row">
-        <div className="brand" onClick={() => setActivePage("home")}>
+        <div className="brand" onClick={() => navigate("/dashboard")}>
           <div className="brand-icon">🌿</div>
           {!collapsed && (
             <div>
@@ -54,13 +59,13 @@ function Sidebar({ activePage, setActivePage, collapsed, setCollapsed }) {
       {!collapsed && <p className="sidebar-section-title">MAIN MENU</p>}
 
       <nav className="nav-section">
-        <NavItem page="home" icon={<Home size={18} />} label="Dashboard" />
-        <NavItem page="disease" icon={<Leaf size={18} />} label="Disease Detection" />
-        <NavItem page="history" icon={<History size={18} />} label="Prediction History" />
-        <NavItem page="crop" icon={<Sprout size={18} />} label="Crop Recommendation" disabled />
-        <NavItem page="yield" icon={<BarChart3 size={18} />} label="Yield Prediction" disabled />
-        <NavItem page="weather" icon={<CloudSun size={18} />} label="Weather Risk" disabled />
-        <NavItem page="chatbot" icon={<Bot size={18} />} label="Farmer Chatbot" disabled />
+        <NavItem path="/dashboard" icon={<Home size={18} />} label="Dashboard" />
+        <NavItem path="/disease" icon={<Leaf size={18} />} label="Disease Detection" />
+        <NavItem path="/history" icon={<History size={18} />} label="Prediction History" />
+        <NavItem path="/crop" icon={<Sprout size={18} />} label="Crop Recommendation" disabled />
+        <NavItem path="/yield" icon={<BarChart3 size={18} />} label="Yield Prediction" disabled />
+        <NavItem path="/weather" icon={<CloudSun size={18} />} label="Weather Risk" disabled />
+        <NavItem path="/chatbot" icon={<Bot size={18} />} label="Farmer Chatbot" disabled />
       </nav>
 
       <div className="sidebar-divider" />
@@ -68,8 +73,8 @@ function Sidebar({ activePage, setActivePage, collapsed, setCollapsed }) {
       {!collapsed && <p className="sidebar-section-title">ACCOUNT</p>}
 
       <nav className="nav-section">
-        <NavItem page="profile" icon={<UserCircle size={18} />} label="Profile" />
-        <NavItem page="settings" icon={<Settings size={18} />} label="Settings" />
+        <NavItem path="/profile" icon={<UserCircle size={18} />} label="Profile" />
+        <NavItem path="/settings" icon={<Settings size={18} />} label="Settings" />
       </nav>
 
       <div className="sidebar-db-card">

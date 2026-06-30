@@ -1,4 +1,5 @@
 import json
+from routers.auth import router as auth_router
 from datetime import datetime
 from database import (
     save_prediction,
@@ -22,7 +23,14 @@ from user_preferences import (
 )
 
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import (
+    FastAPI,
+    UploadFile,
+    File,
+    HTTPException,
+    Depends
+)
+
 from fastapi.responses import StreamingResponse
 from agents.disease_detection_agent import predict_disease
 from agents.recommendation_agent import get_recommendation
@@ -34,11 +42,13 @@ from PIL import Image
 import cv2
 import logging
 import re
+from routers.auth import get_current_user
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="AgriAI Disease Detection API")
+app.include_router(auth_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -156,42 +166,70 @@ def get_model_status():
 
 
 @app.get("/history/recent")
-def history_recent(limit: int = 5):
+def history_recent(
+    limit: int = 5,
+    current_user: dict = Depends(get_current_user)
+):
     return {
-        "items": get_recent_predictions(limit=limit)
+        "items": get_recent_predictions(
+            user_id=current_user["user_id"],
+            limit=limit
+        )
     }
 
 
 @app.get("/history/summary")
-def history_summary():
-    return get_history_summary()
+def history_summary(current_user: dict = Depends(get_current_user)):
+    return get_history_summary(user_id=current_user["user_id"])
 
 
 @app.get("/history/top-diseases")
-def history_top_diseases(limit: int = 5):
+def history_top_diseases(
+    limit: int = 5,
+    current_user: dict = Depends(get_current_user)
+):
     return {
-        "items": get_top_diseases(limit=limit)
+        "items": get_top_diseases(
+            user_id=current_user["user_id"],
+            limit=limit
+        )
     }
 
-
 @app.get("/dashboard/full")
-def dashboard_full():
-    return get_dashboard_full_data()
+def dashboard_full(current_user: dict = Depends(get_current_user)):
+    return get_dashboard_full_data(user_id=current_user["user_id"])
 
 @app.get("/history")
-def get_history(page: int = 1, limit: int = 10):
-    return get_prediction_history(page=page, limit=limit)
+def get_history(
+    page: int = 1,
+    limit: int = 10,
+    search: str = "",
+    crop: str = "",
+    status: str = "",
+    severity: str = "",
+    sort: str = "-created_at",
+    current_user: dict = Depends(get_current_user)
+):
+    return get_prediction_history(
+        user_id=current_user["user_id"],
+        page=page,
+        limit=limit,
+        search=search,
+        crop=crop,
+        status=status,
+        severity=severity,
+        sort=sort
+    )
 
 
 @app.get("/analytics")
-def get_analytics():
-    return get_dashboard_analytics()
+def get_analytics(current_user: dict = Depends(get_current_user)):
+    return get_dashboard_analytics(user_id=current_user["user_id"])
 
 
 @app.get("/analytics/charts")
-def get_analytics_charts():
-    return get_dashboard_charts()
-
+def get_analytics_charts(current_user: dict = Depends(get_current_user)):
+    return get_dashboard_charts(user_id=current_user["user_id"])
 
 @app.post("/feedback")
 def submit_feedback(data: dict):
@@ -265,7 +303,10 @@ def notifications_read():
     return mark_notifications_read()
 
 @app.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
     logger.info("Image received for prediction")
 
     validate_image_file(file)
@@ -323,7 +364,11 @@ async def predict(file: UploadFile = File(...)):
 
     logger.info(f"Prediction completed: {final_result}")
 
-    prediction_id = save_prediction(file_path, final_result)
+    prediction_id = save_prediction(
+    file_path,
+    final_result,
+    current_user["user_id"]
+)
 
     final_result["_id"] = prediction_id
     final_result["feedback"] = None
