@@ -1,3 +1,4 @@
+// settingsService.js
 import apiClient from "../api/client";
 
 export const getSettings = async () => {

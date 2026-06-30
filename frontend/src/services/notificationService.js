@@ -1,3 +1,4 @@
+// notificationService.js
 import apiClient from "../api/client";
 
 export const getNotifications = async () => {

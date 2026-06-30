@@ -1,57 +1,50 @@
 import React, { useState } from "react";
-import "./App.css";
 
-import Sidebar from "./components/Sidebar";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-
-import Landing from "./pages/Landing";
-import Home from "./pages/Home";
-import DiseaseDetection from "./pages/DiseaseDetection";
-import History from "./pages/History";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
+import AppLayout from "./components/Layout/AppLayout";
+import Landing from "./pages/Landing/Landing";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import DiseaseDetection from "./pages/Disease/Disease";
+import History from "./pages/History/History";
 
 function App() {
   const [activePage, setActivePage] = useState("landing");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const renderPage = () => {
     switch (activePage) {
-      case "landing":
-        return <Landing setActivePage={setActivePage} />;
       case "home":
-        return <Home />;
+        return <Dashboard setActivePage={setActivePage} />;
+      case "disease":
+        return <DiseaseDetection />;
       case "history":
         return <History />;
       case "profile":
-        return <Profile />;
+        return <Page title="User Profile" />;
       case "settings":
-        return <Settings />;
-      case "disease":
+        return <Page title="Settings" />;
+      case "notifications":
+        return <Page title="Notifications" />;
+      case "landing":
       default:
-        return <DiseaseDetection />;
+        return <Landing setActivePage={setActivePage} />;
     }
   };
 
+  if (activePage === "landing") {
+    return <Landing setActivePage={setActivePage} />;
+  }
+
   return (
-    <div className="app-shell">
-      <Sidebar
-        activePage={activePage}
-        setActivePage={setActivePage}
-        collapsed={sidebarCollapsed}
-        setCollapsed={setSidebarCollapsed}
-      />
+    <AppLayout activePage={activePage} setActivePage={setActivePage}>
+      {renderPage()}
+    </AppLayout>
+  );
+}
 
-      <div className={`main-area ${sidebarCollapsed ? "main-area-expanded" : ""}`}>
-        {activePage !== "landing" && (
-          <Header setActivePage={setActivePage} />
-        )}
-
-        <main className="page-content">{renderPage()}</main>
-
-        <Footer />
-      </div>
+function Page({ title }) {
+  return (
+    <div className="placeholder-page">
+      <h1>{title}</h1>
+      <p>This page route is working.</p>
     </div>
   );
 }

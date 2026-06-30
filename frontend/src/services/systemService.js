@@ -1,3 +1,4 @@
+// systemService.js
 import apiClient from "../api/client";
 
 export const getSystemStatus = async () => {

@@ -117,7 +117,7 @@
   cursor: not-allowed;
 }
 
-.sidebar-coming-soon small {
+.nav-item small {
   margin-left: auto;
   padding: 3px 7px;
   border-radius: 999px;

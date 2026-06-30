@@ -1,10 +1,17 @@
+import json
+from datetime import datetime
 from database import (
     save_prediction,
     get_prediction_history,
     get_dashboard_analytics,
     get_dashboard_charts,
-    update_prediction_feedback
+    update_prediction_feedback,
+    get_recent_predictions,
+    get_history_summary,
+    get_top_diseases,
+    get_dashboard_full_data
 )
+
 from user_preferences import (
     get_user_profile,
     update_user_profile,
@@ -122,6 +129,54 @@ def get_system_status():
         "feedback_correct": analytics.get("feedback_correct", 0),
         "feedback_wrong": analytics.get("feedback_wrong", 0)
     }
+
+@app.get("/system/model-status")
+def get_model_status():
+    model_config_path = Path("model") / "model_config.json"
+
+    if not model_config_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Model config not found."
+        )
+
+    with open(model_config_path, "r", encoding="utf-8") as file:
+        model_config = json.load(file)
+
+    return {
+        "status": "active",
+        "model": model_config.get("model_type", "N/A"),
+        "version": model_config.get("version", "N/A"),
+        "accuracy": model_config.get("validation_accuracy", "N/A"),
+        "dataset": model_config.get("dataset", "N/A"),
+        "classes": model_config.get("classes", "N/A"),
+        "input_size": model_config.get("input_size", []),
+        "last_updated": datetime.now().strftime("%d %b %Y, %I:%M %p")
+    }
+
+
+@app.get("/history/recent")
+def history_recent(limit: int = 5):
+    return {
+        "items": get_recent_predictions(limit=limit)
+    }
+
+
+@app.get("/history/summary")
+def history_summary():
+    return get_history_summary()
+
+
+@app.get("/history/top-diseases")
+def history_top_diseases(limit: int = 5):
+    return {
+        "items": get_top_diseases(limit=limit)
+    }
+
+
+@app.get("/dashboard/full")
+def dashboard_full():
+    return get_dashboard_full_data()
 
 @app.get("/history")
 def get_history(page: int = 1, limit: int = 10):

@@ -1,3 +1,5 @@
+import React from "react";
+
 function Landing({ setActivePage }) {
   return (
     <div className="landing-page">
@@ -14,7 +16,7 @@ function Landing({ setActivePage }) {
           <a href="#features">Features</a>
           <a href="#about">About</a>
           <a href="#policies">Policies</a>
-          <button onClick={() => setActivePage("disease")}>Open App</button>
+          <button onClick={() => setActivePage("home")}>Open App</button>
         </nav>
       </header>
 
@@ -27,29 +29,37 @@ function Landing({ setActivePage }) {
         </p>
 
         <div className="landing-actions">
-          <button onClick={() => setActivePage("disease")}>Start Disease Detection</button>
-          <button className="secondary-btn" onClick={() => setActivePage("home")}>View Dashboard</button>
+          <button onClick={() => setActivePage("disease")}>
+            Start Disease Detection
+          </button>
+          <button className="secondary-btn" onClick={() => setActivePage("home")}>
+            View Dashboard
+          </button>
         </div>
       </section>
 
       <section id="features" className="landing-section">
         <h2>Platform Features</h2>
+
         <div className="landing-grid">
           <div className="landing-card">
             <h3>🌿 Disease Detection</h3>
-            <p>Upload leaf image and detect plant disease using CNN model.</p>
+            <p>Upload a leaf image and detect plant disease using an AI model.</p>
           </div>
+
           <div className="landing-card">
             <h3>📚 Treatment Advisory</h3>
             <p>Get cause, symptoms, treatment and prevention guidance.</p>
           </div>
+
           <div className="landing-card">
             <h3>📈 Yield Prediction</h3>
             <p>Future module for crop production forecasting.</p>
           </div>
+
           <div className="landing-card">
             <h3>🤖 Farmer Chatbot</h3>
-            <p>Future conversational assistant for farmer queries.</p>
+            <p>Future conversational assistant for farmer questions.</p>
           </div>
         </div>
       </section>
@@ -70,8 +80,6 @@ function Landing({ setActivePage }) {
           decision-support tool and not as a replacement for certified agriculture experts.
         </p>
       </section>
-
-      
     </div>
   );
 }

@@ -301,3 +301,112 @@ def get_dashboard_charts():
         "confidence_trend": confidence_trend,
         "feedback_distribution": feedback_distribution
     }
+
+def serialize_prediction(record):
+    record["_id"] = str(record["_id"])
+
+    if record.get("created_at"):
+        record["created_at"] = record["created_at"].isoformat()
+
+    if record.get("feedback_created_at"):
+        record["feedback_created_at"] = record["feedback_created_at"].isoformat()
+
+    return record
+
+
+def get_recent_predictions(limit=5):
+    limit = min(max(limit, 1), 20)
+
+    records = (
+        predictions_collection
+        .find()
+        .sort("created_at", -1)
+        .limit(limit)
+    )
+
+    return [serialize_prediction(record) for record in records]
+
+
+def get_history_summary():
+    analytics = get_dashboard_analytics()
+
+    total = analytics.get("total_scans", 0)
+    healthy = analytics.get("healthy_leaves", 0)
+    diseased = analytics.get("diseased_leaves", 0)
+
+    uncertain = predictions_collection.count_documents({
+        "status": "uncertain"
+    })
+
+    poor_quality = predictions_collection.count_documents({
+        "status": "poor_quality"
+    })
+
+    return {
+        "total_predictions": total,
+        "healthy": healthy,
+        "diseased": diseased,
+        "uncertain": uncertain,
+        "poor_quality": poor_quality,
+        "average_confidence": analytics.get("average_confidence", 0)
+    }
+
+
+def get_top_diseases(limit=5):
+    limit = min(max(limit, 1), 10)
+
+    records = list(
+        predictions_collection.aggregate([
+            {
+                "$match": {
+                    "disease": {
+                        "$not": {"$regex": "healthy", "$options": "i"}
+                    }
+                }
+            },
+            {
+                "$group": {
+                    "_id": "$disease",
+                    "count": {"$sum": 1}
+                }
+            },
+            {"$sort": {"count": -1}},
+            {"$limit": limit}
+        ])
+    )
+
+    total_diseased = sum(item.get("count", 0) for item in records)
+
+    return [
+        {
+            "name": item.get("_id") or "Unknown",
+            "count": item.get("count", 0),
+            "percentage": round(
+                (item.get("count", 0) / total_diseased) * 100,
+                2
+            ) if total_diseased > 0 else 0
+        }
+        for item in records
+    ]
+
+
+def get_dashboard_full_data():
+    analytics = get_dashboard_analytics()
+    charts = get_dashboard_charts()
+    recent_predictions = get_recent_predictions(limit=5)
+    history_summary = get_history_summary()
+    top_diseases = get_top_diseases(limit=5)
+
+    return {
+        "analytics": analytics,
+        "charts": charts,
+        "recent_predictions": recent_predictions,
+        "history_summary": history_summary,
+        "top_diseases": top_diseases,
+        "system": {
+            "api_status": "active",
+            "database_status": "connected",
+            "storage_status": "healthy",
+            "ai_model_status": "running"
+        }
+    }

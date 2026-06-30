@@ -4,7 +4,7 @@ function Footer() {
   return (
     <footer className="footer">
       <span>© 2026 AgriAI Intelligence Platform</span>
-      <span>Disease Detection Module v1.0</span>
+      <span>API Active · MongoDB Connected · Disease Detection v1.0</span>
     </footer>
   );
 }
