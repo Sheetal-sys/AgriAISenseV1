@@ -1,6 +1,8 @@
 import json
 from routers.auth import router as auth_router
 from datetime import datetime
+from routers.profile import router as profile_router
+from routers.settings import router as settings_router
 from database import (
     save_prediction,
     get_prediction_history,
@@ -11,15 +13,6 @@ from database import (
     get_history_summary,
     get_top_diseases,
     get_dashboard_full_data
-)
-
-from user_preferences import (
-    get_user_profile,
-    update_user_profile,
-    get_user_settings,
-    update_user_settings,
-    get_notifications,
-    mark_notifications_read
 )
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,12 +36,16 @@ import cv2
 import logging
 import re
 from routers.auth import get_current_user
+from routers.notifications import router as notifications_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="AgriAI Disease Detection API")
+app.include_router(notifications_router)
 app.include_router(auth_router)
+app.include_router(profile_router)
+app.include_router(settings_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -273,34 +270,6 @@ def generate_report(data: dict):
         }
     )
 
-@app.get("/user/profile")
-def user_profile():
-    return get_user_profile()
-
-
-@app.put("/user/profile")
-def user_profile_update(data: dict):
-    return update_user_profile(data)
-
-
-@app.get("/user/settings")
-def user_settings():
-    return get_user_settings()
-
-
-@app.put("/user/settings")
-def user_settings_update(data: dict):
-    return update_user_settings(data)
-
-
-@app.get("/notifications")
-def notifications():
-    return get_notifications()
-
-
-@app.patch("/notifications/read")
-def notifications_read():
-    return mark_notifications_read()
 
 @app.post("/predict")
 async def predict(

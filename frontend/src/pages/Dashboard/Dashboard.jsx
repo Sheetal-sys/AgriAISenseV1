@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import PageLoader from "../../components/common/PageLoader";
 import {
   Activity,
   Bot,
@@ -58,13 +59,13 @@ function Dashboard() {
   }, [analytics]);
 
   if (loading) {
-    return (
-      <div className="placeholder-page">
-        <h1>Loading Dashboard...</h1>
-        <p>Fetching complete dashboard data.</p>
-      </div>
-    );
-  }
+  return (
+    <PageLoader
+      title="Loading Dashboard"
+      subtitle="Fetching your analytics, predictions and AI insights..."
+    />
+  );
+}
 
   return (
     <div className="dashboard-page premium-dashboard">

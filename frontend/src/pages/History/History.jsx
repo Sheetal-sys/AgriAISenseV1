@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import PageLoader from "../../components/common/PageLoader";
 import {
-  Activity,
   Download,
   Search,
   ShieldCheck,
@@ -118,7 +118,15 @@ function History() {
       setReportLoadingId(null);
     }
   };
-
+ if (loading) {
+        return (
+    <PageLoader
+      title="Loading History"
+      subtitle="Retrieving your previous disease predictions..."
+    />
+  );
+     }
+   
   return (
     <div className="history-page enterprise-history-page">
       <section className="history-hero">
@@ -190,12 +198,7 @@ function History() {
           <span>Actions</span>
         </div>
 
-        {loading ? (
-          <div className="history-empty-row">
-            <Activity size={22} />
-            Loading prediction records...
-          </div>
-        ) : records.length === 0 ? (
+        {records.length === 0 ? (
           <div className="history-empty-row">
             No prediction records found.
           </div>

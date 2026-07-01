@@ -10,6 +10,9 @@ import Register from "../pages/Register/Register";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import DiseaseDetection from "../pages/Disease/Disease";
 import History from "../pages/History/History";
+import Profile from "../pages/Profile/Profile";
+import Settings from "../pages/Settings/Settings";
+import Notifications from "../pages/Notifications/Notifications";
 
 function AppRoutes() {
   return (
@@ -17,6 +20,9 @@ function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/notifications" element={<Notifications />} />
 
       <Route
         element={

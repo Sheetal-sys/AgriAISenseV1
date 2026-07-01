@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 import { predictDisease } from "../../services/predictionService";
 import { generateReport } from "../../services/reportService";
@@ -35,7 +36,9 @@ function DiseaseDetection() {
 
   const analyzeDisease = async () => {
     if (!file) {
-      setErrorMessage("Please upload a leaf image first.");
+      const message = "Please upload a leaf image first.";
+      setErrorMessage(message);
+      toast.error(message);
       return;
     }
 
@@ -48,18 +51,33 @@ function DiseaseDetection() {
 
       const data = await predictDisease(formData);
       setResult(data);
+
+      if (data.status === "poor_quality") {
+        toast.error("Image quality is low. Please upload a clearer image.");
+      } else if (data.status === "uncertain") {
+        toast("Disease detected with low confidence.");
+      } else {
+        toast.success("Disease analysis completed.");
+      }
     } catch (error) {
       console.error(error);
-      setErrorMessage(
-        error.response?.data?.detail || "Backend unavailable or prediction failed."
-      );
+
+      const message =
+        error.response?.data?.detail ||
+        "Backend unavailable or prediction failed.";
+
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   const downloadReport = async () => {
-    if (!result) return;
+    if (!result) {
+      toast.error("No prediction result available for report.");
+      return;
+    }
 
     try {
       setReportLoading(true);
@@ -80,9 +98,14 @@ function DiseaseDetection() {
       link.remove();
 
       window.URL.revokeObjectURL(url);
+
+      toast.success("Report downloaded successfully.");
     } catch (error) {
       console.error("Report download failed", error);
-      setErrorMessage("Unable to download report. Please try again.");
+
+      const message = "Unable to download report. Please try again.";
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setReportLoading(false);
     }
@@ -90,7 +113,9 @@ function DiseaseDetection() {
 
   const handleFeedbackSubmit = async (feedbackValue) => {
     if (!result?._id) {
-      setErrorMessage("Feedback can be submitted only after saved prediction.");
+      const message = "Feedback can be submitted only after saved prediction.";
+      setErrorMessage(message);
+      toast.error(message);
       return;
     }
 
@@ -101,9 +126,14 @@ function DiseaseDetection() {
         ...previous,
         feedback: feedbackValue,
       }));
+
+      toast.success("Feedback saved successfully.");
     } catch (error) {
       console.error("Feedback failed", error);
-      setErrorMessage("Unable to submit feedback. Please try again.");
+
+      const message = "Unable to submit feedback. Please try again.";
+      setErrorMessage(message);
+      toast.error("Unable to submit feedback.");
     }
   };
 
